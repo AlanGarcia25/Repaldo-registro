@@ -1,24 +1,21 @@
 import React from "react"
+import { useNavigate } from "react-router-dom"
 import Input from "./input"
 import Boton from "./boton"
 
 const Card = () => {
     const [nombre, setNombre] = React.useState("")
     const [password, setPassword] = React.useState("")
-
-
-    const usuario = [{ id: 1, nombre: "admin", password: "admin123" }]
-
-    function submitHandler(nombre: string, password: string) {
-        if ((nombre === usuario[0].nombre) && (password === usuario[0].password)) {
-            alert("Inicio de sesión exitoso");
-        } else {
-            alert("Usuario o contraseña incorrectos");
-        }
+    const usuario = {
+        nombre: "admin",
+        password: "admin123"
     }
+    const navigate = useNavigate();
+
     function validacion() {
-        if ((nombre === usuario[0].nombre) && (password === usuario[0].password)) {
-            alert("Inicio de sesión exitoso");
+        if ((nombre === usuario.nombre) && (password === usuario.password)) {
+            localStorage.setItem("auth", "true");
+            navigate("/formulario", { replace: true });
         } else {
             alert("Usuario o contraseña incorrectos");
         }
@@ -26,27 +23,25 @@ const Card = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-full max-w-md shadow-xl ring-gray-200/50 border border-gray-200">
+            <div className="box-border p-6 w-full max-w-md shadow-xl ring-gray-200/50 border border-gray-200 rounded-lg">
                 <h1 className="text-xl font-semibold flex items-center justify-center p-4">Inicio de sesión</h1>
                 <Input
                     nombre="usuario"
                     placeholder="Ingresa tu usuario"
-                    value={nombre}
+                    tipo="text"
+                    sizeBoton="w-auto"
                     onChange={setNombre}
                 />
                 <Input
                     nombre="Contraseña"
                     placeholder="Ingresa tu contraseña"
-                    value={password}
                     tipo="password"
+                    sizeBoton='w-auto'
                     onChange={setPassword}
                 />
                 <Boton
                     nombreBoton="Iniciar sesión"
-                    nombreUsuario={nombre}
-                    password={password}
-                    color="bg-blue-500 text-white hover:bg-blue-600"
-                    onChange={submitHandler}
+                    color='bg-blue-500 text-white hover:bg-blue-600'
                     onClick={validacion}
                 />
             </div>
