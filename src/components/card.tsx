@@ -29,14 +29,14 @@ const Card = () => {
                     nombre="usuario"
                     placeholder="Ingresa tu usuario"
                     tipo="text"
-                    sizeBoton="w-auto"
+                    value={nombre}
                     onChange={setNombre}
                 />
                 <Input
                     nombre="Contraseña"
                     placeholder="Ingresa tu contraseña"
                     tipo="password"
-                    sizeBoton='w-auto'
+                    value={password}
                     onChange={setPassword}
                 />
                 <Boton

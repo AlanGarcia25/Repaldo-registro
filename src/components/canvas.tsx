@@ -9,12 +9,18 @@ function Canvas() {
         sigCanvas.current?.clear();
     };
 
+    const recargar = () => {
+        window.location.reload()
+    }
+
     const enviarDatos = () => {
         alert('Datos enviados con éxito');
     };
 
     return (
+
         <div className='pt-2'>
+
             <div className="border border-gray-800">
                 <SignatureCanvas
                     minDistance={5}
@@ -23,11 +29,20 @@ function Canvas() {
                     canvasProps={{ className: 'sigCanvas w-full h-40' }}
                 />
             </div>
+
             <div className="flex pt-4 gap-6">
-                <Boton nombreBoton="Limpiar" onClick={handleClear} color="bg-gray-400 hover:bg-gray-500" />
-                <Boton nombreBoton="Guardar" onClick={enviarDatos} color="bg-green-600/80 hover:bg-green-600" />
+                <Boton
+                    nombreBoton="Limpiar"
+                    onClick={handleClear}
+                    color="bg-gray-400 hover:bg-gray-500" />
+                <Boton
+                    nombreBoton="Guardar"
+                    onClick={() => { recargar(); enviarDatos() }}
+                    color="bg-green-600/80 hover:bg-green-600" />
             </div>
+            
         </div>
+        
     );
 }
 

@@ -6,6 +6,7 @@ const isAuthenticated = () => localStorage.getItem('auth') === 'true';
 
 export const AppRouter = () => {
   return (
+
     <Routes>
       <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<App />} />
@@ -15,5 +16,6 @@ export const AppRouter = () => {
       />
       <Route path="*" element={<h1>404 - No encontrado</h1>} />
     </Routes>
+
   );
 }

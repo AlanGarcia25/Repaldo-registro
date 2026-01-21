@@ -1,11 +1,12 @@
 import Card from './components/card';
 
 function App() {
+  return (
 
-    return (
-      <div className="@container">
-        <Card />
-      </div>
+    <div className="@container">
+      <Card />
+    </div>
+
   )
 }
 

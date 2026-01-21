@@ -2,9 +2,11 @@ import CardFor from "./components/cardFor"
 
 function Formulario() {
   return (
-    <div className="">
+
+    <div>
       <CardFor />
     </div>
+
   )
 }
 
