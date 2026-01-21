@@ -1,32 +1,30 @@
-import type { SelectOption } from "../hooks/useSelectApi";
-
 interface SelectProps {
     nombreSelect: string;
-    options: SelectOption[]; 
-    value?: void
-    onChange: (valor: string) => void; 
+    options: { value: string | number; label: string }[];
+    value?: string | number; 
+    onChange: (val: string) => void;
 }
 
-function Select({ nombreSelect, options, onChange }: SelectProps) {
+const Select = ({ nombreSelect, options, value, onChange }: SelectProps) => {
     return (
-        <div className={`flex flex-col gap-4 py-3 w-full`}>
-
-            <select 
-                defaultValue=""
+        <div className="flex flex-col gap-2 w-full">
+            <label className="text-sm font-bold ">{nombreSelect}</label>
+            <select
+                className="border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none"
+                value={value || ""} 
+                // cambiar a value={value || ""}
                 onChange={(e) => onChange(e.target.value)}
-                className="w-full min-w-0 cursor-pointer border-b border-black p-2 text-sm focus:outline-none focus:border-blue-700 focus:outline-hidde block"
             >
+                <option value="" disabled>Seleccione una opción</option>
                 
-                <option value="" selected >{nombreSelect}</option>
-                {options.map((opt, index) => ( 
-                    <option key={index} value={opt.value}>
+                {options.map((opt) => (
+                    <option key={opt.value} value={opt.value}>
                         {opt.label}
                     </option>
                 ))}
             </select>
-
         </div>
     );
-}
+};
 
 export default Select;

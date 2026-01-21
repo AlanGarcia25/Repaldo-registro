@@ -15,7 +15,7 @@ const Card = () => {
     function validacion() {
         if ((nombre === usuario.nombre) && (password === usuario.password)) {
             localStorage.setItem("auth", "true");
-            navigate("/formulario", { replace: true });
+            navigate("/formulario");
         } else {
             alert("Usuario o contraseña incorrectos");
         }

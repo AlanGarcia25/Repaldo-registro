@@ -6,7 +6,6 @@ export interface SelectOption {
 
 }
 
-
 export function useSelectApi<T>(
 
     serviceFunction: () => Promise<T[]>,

@@ -3,6 +3,7 @@ interface InputProps {
     tipo: string;
     placeholder: string;
     value?: string | number;
+    // ver como poner de cuando yo lo requiera "defaultValue"
     onChange: (value: string) => void;
     onBlur?: (value: string) => void; 
 }
@@ -17,6 +18,7 @@ function Input({ tipo = "text", placeholder = "", value, onChange, onBlur }: Inp
                 type={tipo}
                 placeholder={placeholder}
                 value={value ?? ""} 
+                // corregir value={value ?? ""}
                 required
                 onChange={(e) => onChange(e.target.value)}
                 onBlur={(e) => onBlur && onBlur(e.target.value)} 
