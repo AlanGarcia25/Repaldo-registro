@@ -6,16 +6,16 @@ import Boton from "./boton"
 const Card = () => {
     const [nombre, setNombre] = React.useState("")
     const [password, setPassword] = React.useState("")
+    const navigate = useNavigate();
+
     const usuario = {
         nombre: "admin",
         password: "admin123"
     }
-    const navigate = useNavigate();
-
     function validacion() {
         if ((nombre === usuario.nombre) && (password === usuario.password)) {
             localStorage.setItem("auth", "true");
-            navigate("/formulario");
+            navigate("/formulario", { replace: true });
         } else {
             alert("Usuario o contraseña incorrectos");
         }
@@ -41,7 +41,7 @@ const Card = () => {
                 />
                 <Boton
                     nombreBoton="Iniciar sesión"
-                    color='bg-blue-500 text-white hover:bg-blue-600'
+                    color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600'
                     onClick={validacion}
                 />
             </div>

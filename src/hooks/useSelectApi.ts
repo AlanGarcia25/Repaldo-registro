@@ -3,16 +3,12 @@ import { useState, useEffect } from "react";
 export interface SelectOption {
     value: string | number;
     label: string;
-
 }
 
 export function useSelectApi<T>(
-
     serviceFunction: () => Promise<T[]>,
     mapFunction: (item: T) => SelectOption
-
 ) {
-
     const [options, setOptions] = useState<SelectOption[]>([]);
     const [loading, setLoading] = useState(true);
 

@@ -19,7 +19,7 @@ function CardFor() {
     );
 
     const [, setIdEmpresaSel] = useState("");
-    const datos = useTokenData(); 
+    const datos = useTokenData();
 
     function avisoHuella() {
         alert('Huella capturada');
@@ -30,9 +30,10 @@ function CardFor() {
             <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full">
                 {/* MENU IZQUIERDO */}
                 <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg">
-                    <h1 className="text-xl font-semibold flex items-center justify-center p-4">Datos del empleado</h1>
+                    <h1 className="text-xl font-semibold flex items-center justify-center pb-5">Datos del empleado</h1>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mb-4">
+                    {/* PRIMERO PARTE MENO IZQUIERO */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         <Select
                             nombreSelect={loadingEmpresas ? "Cargando..." : "Empresa"}
                             options={empresasOptions}
@@ -49,6 +50,7 @@ function CardFor() {
                             placeholder="No.Empleado"
                             value={datos.empleadoId}
                             onChange={() => { }}
+                            readOnly={true}
                         />
                         <Input
                             nombre="Nombre"
@@ -56,6 +58,7 @@ function CardFor() {
                             placeholder="Nombre"
                             value={datos.empleadoNombre}
                             onChange={() => { }}
+                            readOnly={true}
                         />
                         <Input
                             nombre="Apellido Paterno"
@@ -63,6 +66,7 @@ function CardFor() {
                             placeholder="Apellido materno"
                             value={datos.apellidoPaterno}
                             onChange={() => { }}
+                            readOnly={true}
                         />
                         <Input
                             nombre="Apellido Materno"
@@ -70,21 +74,25 @@ function CardFor() {
                             placeholder="Apellido paterno"
                             value={datos.apellidoMaterno}
                             onChange={() => { }}
+                            readOnly={true}
                         />
                     </div>
 
+                    {/* SEGUNDA PARTE MENU IZQUIERPO */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
                         <Input
                             nombre="Curp"
                             placeholder="CURP"
                             tipo="text"
                             value={datos.empleadoCURP}
+                            readOnly={true}
                             onChange={() => { }} />
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
                             tipo="text"
                             value={datos.empleadoRFC}
+                            readOnly={true}
                             onChange={() => { }} />
                         <Select
                             nombreSelect={"Sexo"}
@@ -113,7 +121,6 @@ function CardFor() {
                                 className="w-full border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none resize-none"
                                 placeholder="Ingrese el domicilio"
                                 defaultValue={datos.domicilio}
-
                                 rows={2}
                             ></textarea>
                         </div>
@@ -132,16 +139,16 @@ function CardFor() {
 
                 {/* MENU DERECHO */}
                 <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-4">
-                    <h1 className="text-xl font-semibold flex items-center justify-center p-4">Biométricos</h1>
+                    <h1 className="text-xl font-semibold flex items-center justify-center pb-5">Biométricos</h1>
                     <div className="content-around text-center">
                         <Boton
                             nombreBoton="Capturar huella"
-                            color='bg-blue-500 text-white hover:bg-blue-600 mb-4'
+                            color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600 mb-4'
                             onClick={avisoHuella}
                         />
                         <Canvas />
                     </div>
-                    
+
                 </div>
             </div>
         </div>

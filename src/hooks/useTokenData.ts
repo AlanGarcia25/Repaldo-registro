@@ -17,7 +17,6 @@ export interface EmpleadoDTO {
 }
 
 export const useTokenData = () => {
-  // Inicializamos con valores vacíos para que la pantalla NO se bloquee
   const [datos, setDatos] = useState<EmpleadoDTO>({
     empleadoId: "",
     empleadoNombre: "",
@@ -29,7 +28,7 @@ export const useTokenData = () => {
     fechaNacimiento: "",
     domicilio: "",
     colonia: "",
-    codigoPostal:0,
+    codigoPostal: 0,
     lugarNacimiento: "",
   });
 
@@ -47,7 +46,7 @@ export const useTokenData = () => {
         );
         if (res.data) setDatos(res.data);
       } catch (error) {
-        console.error("Error al traer datos, los campos quedarán vacíos.");
+        console.error("Error al traer datos");
       }
     };
     cargarDatos();
