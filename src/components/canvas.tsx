@@ -8,7 +8,7 @@ function Canvas() {
 
     const handleClear = () => {
         sigCanvas.current?.clear();
-        setEstaVacio(true); 
+        setEstaVacio(true);
     };
 
     const revisarFirma = () => {
@@ -33,7 +33,6 @@ function Canvas() {
     const enviarDatos = () => {
         if (estaVacio) {
             alert("No puedes enviar una firma vacía");
-            return;
         }
         alert('Datos enviados con éxito');
         descargarImagen();

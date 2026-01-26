@@ -1,9 +1,4 @@
-interface BotonProps {
-    nombreBoton: string;
-    color: string;
-    disabled?:  boolean;
-    onClick?: () => void;
-}
+import type { BotonProps } from "../models/api.models";
 
 function Boton({ nombreBoton, color, disabled , onClick }: BotonProps) {
     return (
@@ -12,6 +7,7 @@ function Boton({ nombreBoton, color, disabled , onClick }: BotonProps) {
                 className={`w-full py-2 px-4 rounded-md ${color} text-white`}
                 onClick={onClick}
                 disabled={disabled}
+                type="submit"
             >
                 {nombreBoton}
             </button>

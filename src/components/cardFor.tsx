@@ -4,25 +4,69 @@ import Input from "./input"
 import Boton from "./boton"
 import Canvas from "./canvas"
 
-import { useTokenData } from "../hooks/useTokenData"
+import type { datosEmpleado } from "../models/api.models"
+
 import { useSelectApi } from "../hooks/useSelectApi";
 import { getNombreEmpresas } from "../services/api.config";
-import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data"
+import { getDatosEmpleado } from "../services/api.config"
+import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL } from "./data"
 
 function CardFor() {
+    const [, setIdEmpresaSel] = useState("");
+    const handleInputChange = (campo: keyof datosEmpleado, valor: string | number) => {
+        setDatos(prev => ({
+            ...prev,
+            [campo]: valor
+        }));
+    };
+
+    // OBTENCION DE DATOS PARA EMPRESAS Y EMPLADO
+    const [listaEmpleadosOriginal, setListaEmpleadosOriginal] = useState<datosEmpleado[]>([]);
     const { options: empresasOptions, loading: loadingEmpresas } = useSelectApi(
         getNombreEmpresas,
+        (emp) => ({ value: emp.empresaId, label: emp.empresaNombre })
+    );
+
+    const { options: empleadoOptions } = useSelectApi(
+        async () => {
+            const res = await getDatosEmpleado();
+            setListaEmpleadosOriginal(res);
+            return res;
+        },
         (emp) => ({
-            value: emp.empresaId,
-            label: emp.empresaNombre
+            value: emp.empleadoId,
+            label: `${emp.empleadoNombre} ${emp.apellidoPaterno}`
         })
     );
 
-    const [, setIdEmpresaSel] = useState("");
-    const datos = useTokenData();
+    const [datos, setDatos] = useState<datosEmpleado>({
+        empleadoId: "",
+        empleadoNombre: "",
+        apellidoPaterno: "",
+        apellidoMaterno: "",
+        empleadoCURP: "",
+        empleadoRFC: "",
+        sexo: "",
+        fechaNacimiento: "",
+        domicilio: "",
+        colonia: "",
+        codigoPostal: 0,
+        lugarNacimiento: "",
+        // NO SE USA DE MOMENTO
+        estadoCivil: ""
+        // NO SE USA DE MOMENTO
+    });
 
-    function avisoHuella() {
-        alert('Huella capturada');
+    const handleEmpleadoChange = (id: string | number) => {
+        const seleccionado = listaEmpleadosOriginal.find(e => e.empleadoId === id);
+        if (seleccionado) {
+            setDatos(seleccionado);
+        }
+    };
+    // FIN DE OBTENCION DE DATOS PARA EMPRESAS Y EMPLADO
+
+    const avisoHuella = () => {
+        alert("La huella se registro con exito")
     }
 
     return (
@@ -37,19 +81,21 @@ function CardFor() {
                         <Select
                             nombreSelect={loadingEmpresas ? "Cargando..." : "Empresa"}
                             options={empresasOptions}
+                            readOnly={true}
                             onChange={(val) => setIdEmpresaSel(val)}
                         />
                         <Select
                             nombreSelect={"Tipo jornal"}
                             options={OPCIONES_TIPO_JORNAL}
+                            readOnly={true}
                             onChange={(val) => setIdEmpresaSel(val)}
                         />
                         <Input
                             nombre="No. Empleado"
                             tipo="text"
                             placeholder="No.Empleado"
-                            value={datos.empleadoId}
-                            onChange={() => { }}
+                            value={datos.colonia}
+                            onChange={() => { handleEmpleadoChange }}
                             readOnly={true}
                         />
                         <Input
@@ -57,7 +103,7 @@ function CardFor() {
                             tipo="text"
                             placeholder="Nombre"
                             value={datos.empleadoNombre}
-                            onChange={() => { }}
+                            onChange={() => { handleEmpleadoChange }}
                             readOnly={true}
                         />
                         <Input
@@ -65,7 +111,7 @@ function CardFor() {
                             tipo="text"
                             placeholder="Apellido materno"
                             value={datos.apellidoPaterno}
-                            onChange={() => { }}
+                            onChange={() => { handleEmpleadoChange }}
                             readOnly={true}
                         />
                         <Input
@@ -73,7 +119,7 @@ function CardFor() {
                             tipo="text"
                             placeholder="Apellido paterno"
                             value={datos.apellidoMaterno}
-                            onChange={() => { }}
+                            onChange={() => { handleEmpleadoChange }}
                             readOnly={true}
                         />
                     </div>
@@ -86,34 +132,44 @@ function CardFor() {
                             tipo="text"
                             value={datos.empleadoCURP}
                             readOnly={true}
-                            onChange={() => { }} />
+                            onChange={() => { handleEmpleadoChange }} />
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
                             tipo="text"
                             value={datos.empleadoRFC}
                             readOnly={true}
-                            onChange={() => { }} />
+                            onChange={() => { handleEmpleadoChange }} />
                         <Select
                             nombreSelect={"Sexo"}
-                            options={OPCIONES_SEXO}
+                            options={empleadoOptions}
                             value={datos.sexo}
-                            onChange={() => { }} />
+                            readOnly={false}
+                            onChange={(val) => handleInputChange("sexo", val)}
+                        />
                         <Select
                             nombreSelect={"Estado Civil"}
                             options={OPCIONES_ESTADO_CIVIL}
-                            onChange={() => { }} />
+                            value={datos.estadoCivil || ""}
+                            readOnly={false}
+                            onChange={(val) => { handleInputChange('estadoCivil', val) }}
+                        />
                         <Input
                             nombre="Fecha de Nacimiento"
                             placeholder="Fecha de Nacimiento"
                             value={datos.fechaNacimiento}
-                            tipo="date" onChange={() => { }} />
+                            tipo="date"
+                            readOnly={false}
+                            onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
+                        />
                         <Input
                             nombre="LugarNac"
                             placeholder="Lugar"
                             tipo="text"
                             value={datos.lugarNacimiento}
-                            onChange={() => { }} />
+                            readOnly={false}
+                            onChange={(val) => { handleInputChange('lugarNacimiento', val) }}
+                        />
 
                         <div className="col-span-1 sm:col-span-2 flex flex-col gap-2 w-full mt-4">
                             <label className="text-sm font-bold text-gray-700">Domicilio</label>
@@ -122,18 +178,23 @@ function CardFor() {
                                 placeholder="Ingrese el domicilio"
                                 defaultValue={datos.domicilio}
                                 rows={2}
+                                readOnly={false}
                             ></textarea>
                         </div>
                         <Input nombre="Colonia"
                             placeholder="Colonia"
                             tipo="text"
                             value={datos.colonia}
-                            onChange={() => { }} />
+                            readOnly={false}
+                            onChange={(val) => { handleInputChange('colonia', val) }}
+                        />
                         <Input nombre="Código Postal"
                             placeholder="C.P."
                             tipo="number"
                             value={datos.codigoPostal}
-                            onChange={() => { }} />
+                            readOnly={false}
+                            onChange={(val) => { handleInputChange('codigoPostal', val) }}
+                        />
                     </div>
                 </div>
 

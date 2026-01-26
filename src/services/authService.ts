@@ -1,31 +1,26 @@
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: import.meta.env.VITE_URL_DATOS,
+});
+
 interface LoginResponse {
-    token?: string;
-    mensaje?: string;
+  token?: string;
+  mensaje?: string;
 }
 
-export const login = async (usuario: string, password: string): Promise<LoginResponse> => {
-    try {
+export const login = async (email: string, password: string): Promise<LoginResponse> => {
+  try {
+    const { data } = await api.post<LoginResponse>("/login", { email, password });
 
-        const response = await fetch(`${import.meta.env.VITE_URL_DATOS}/login`, {
-            method: "POST",
-            body: JSON.stringify({ usuario, password }), 
-            headers: { "Content-Type": "application/json" }
-        });
-
-        if (!response.ok) {
-            throw new Error("Credenciales incorrectas");
-        }
-
-        const data: LoginResponse = await response.json();
-
-        if (data.token) {
-            localStorage.setItem("token", data.token);
-        }
-        
-        return data;
-    } catch (error) {
-        console.error("Error en login:", error);
-        throw error;
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      api.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
     }
-    
+
+    return data;
+  } catch (error: any) {
+    const mensaje = error.response?.data?.mensaje || "Error al iniciar sesión";
+    throw new Error(mensaje);
+  }
 };

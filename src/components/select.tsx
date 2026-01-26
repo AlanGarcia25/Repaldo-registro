@@ -1,10 +1,4 @@
-interface SelectProps {
-    nombreSelect: string;
-    options: { value: string | number; label: string }[];
-    value?: string | number; 
-    readOnly?: boolean;
-    onChange: (val: string) => void;
-}
+import type { SelectProps } from "../models/api.models";
 
 const Select = ({ nombreSelect, options, value, onChange, readOnly=false }: SelectProps) => {
     return (
@@ -12,7 +6,7 @@ const Select = ({ nombreSelect, options, value, onChange, readOnly=false }: Sele
             <label className="text-sm font-bold ">{nombreSelect}</label>
             <select
                 className="border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none"
-                defaultValue={value || ""} 
+                value={value || ""} 
                 onChange={(e) => onChange(e.target.value)}
                 disabled= {readOnly}
             >
