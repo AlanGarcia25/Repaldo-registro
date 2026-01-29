@@ -1,30 +1,26 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { BASE_URL } from "../services/api.config";
 import Input from "./input"
 import Boton from "./boton"
-import type { Usuario } from "../models/api.models"
 import axios from "axios"
 
 
 const Card = () => {
-    const navigate = useNavigate()
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const navigate = useNavigate();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
 
-    const [datos] = useState<Usuario>({
-        Email: "",
-        Password: "",
-    });
+
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         try {
-            datos.Email = "cenriquez@agrocir.com";
-            datos.Password = "ag2026AGR.";
-            // console.log(`se mandaron los datos ${datos.Email}`)
-            const response = await axios.post('http://10.10.0.136:7222/api/usuario/contrato/login', datos);
+            const credenciales = { Email: email, Password: password };
+            const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem("auth", "true");
+            localStorage.setItem("empresaname", email);
             navigate("/formulario", { replace: true });
         } catch (error) {
             console.error("Error al iniciar sesion", error);
@@ -33,14 +29,14 @@ const Card = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-full max-w-md shadow-xl ring-gray-200/50 border border-gray-200 rounded-lg">
+            <div className="box-border p-6 w-full max-w-md shadow-xl/30 ring-gray-200/50 border border-gray-200 rounded-lg">
                 <h1 className="text-xl font-semibold flex items-center justify-center p-4">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
                         nombre="Usuario"
+                        tipo="email"
                         value={email}
                         onChange={(value) => setEmail(value)}
-                        tipo="email"
                         placeholder="Ingresa tu correo"
                     />
                     <Input
@@ -53,7 +49,6 @@ const Card = () => {
                     <Boton
                         nombreBoton="Iniciar sesión"
                         color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600'
-                    // onClick={validacion}
                     />
                 </form>
             </div>
@@ -63,5 +58,5 @@ const Card = () => {
 
 export default Card
 
-// localStorage.setItem("auth", "true");
-//             navigate("/formulario", { replace: true });
+// cenriquez@agrocir.com
+// ag2026AGR.

@@ -20,6 +20,7 @@ export interface datosEmpleado {
   lugarNacimiento: string;
   // NO SE USA DE MOMENTO
   estadoCivil: string;
+  tipoJornal: string;
   // NO SE USA DE MOMENTO
 }
 
@@ -38,9 +39,13 @@ export interface InputProps {
   placeholder: string;
   value?: string | number;
   readOnly?: boolean;
+  estilos?: string;
+  min?: string;
+  max?: string;
   onChange: (value: string) => void;
   onBlur?: (value: string) => void;
   ref?: null;
+  onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 // USO PARA EL COMPONENTE "select"
@@ -51,7 +56,6 @@ export interface SelectProps {
   readOnly?: boolean;
   onChange: (val: string) => void;
 }
-
 
 // USO PARA EL INICIO DE SESION "card"
 export interface Usuario {
@@ -65,7 +69,7 @@ export interface Usuario {
 }
 
 // USO PARA LA OBTENCION Y DURACION DEL TOKEN
-export interface Token{
+export interface Token {
   token: string;
   fechaExpiracion: Date;
 }

@@ -2,7 +2,11 @@ import { useRef, useState } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import Boton from './boton';
 
-function Canvas() {
+interface CanvasProps {
+    onEnviar: (url: string) => void;
+}
+
+function Canvas({ onEnviar }: CanvasProps) {
     const sigCanvas = useRef<SignatureCanvas>(null);
     const [estaVacio, setEstaVacio] = useState(true);
 
@@ -17,38 +21,29 @@ function Canvas() {
         }
     };
 
-    const descargarImagen = () => {
+    const enviarDatos = () => {
+        if (estaVacio) return;
+
         const canvas = sigCanvas.current?.getCanvas();
         if (canvas) {
             const dataURL = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.href = dataURL;
-            link.download = 'firma.png';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            onEnviar(dataURL);
+            alert('Datos enviados con éxito');
+            handleClear();
+            window.location.reload()
         }
-    };
-
-    const enviarDatos = () => {
-        if (estaVacio) {
-            alert("No puedes enviar una firma vacía");
-        }
-        alert('Datos enviados con éxito');
-        descargarImagen();
-        handleClear();
     };
 
     return (
         <div className='pt-2'>
-            <div className="border border-gray-800">
+            <div className="border border-gray-800 bg-[#f9f9f9]">
                 <SignatureCanvas
-                    minDistance={5}
-                    backgroundColor="white"
-                    velocityFilterWeight={0.2}
                     ref={sigCanvas}
                     canvasProps={{ className: 'sigCanvas w-full h-40' }}
                     onEnd={revisarFirma}
+                    backgroundColor="white"
+                    minWidth={3.5}
+                    maxWidth={1}
                 />
             </div>
 
@@ -56,17 +51,16 @@ function Canvas() {
                 <Boton
                     nombreBoton="Limpiar"
                     onClick={handleClear}
-                    color="cursor-pointer bg-stone-600 hover:bg-stone-800"
+                    color="bg-stone-600 hover:bg-stone-800"
                 />
                 <Boton
-                    nombreBoton="Guardar"
+                    nombreBoton="Enviar"
                     disabled={estaVacio}
                     onClick={enviarDatos}
-                    color={estaVacio ? "cursor-not-allowed bg-green-600/40" : "cursor-pointer bg-green-600/80 hover:bg-green-600"}
+                    color={estaVacio ? "bg-yellow-600/40 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-600 cursor-pointer"}
                 />
             </div>
         </div>
     );
 }
-
 export default Canvas;

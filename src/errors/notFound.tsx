@@ -8,8 +8,8 @@ function NotFound() {
                     <h2 className="mb-8 font-extrabold text-9xl dark:text-gray-400">
                         <span className="sr-only">Error</span>404
                     </h2>
-                    <p className="text-2xl font-semibold md:text-3xl">Lo sentimos, la pagina que buscas no existe </p>
-                    <p className="mt-4 mb-8 dark:text-gray-600">Pero no te preocues, puedes regresar a la pagina de inicio.</p>
+                    <p className="text-2xl font-semibold md:text-3xl">Pagina no encontrada</p>
+                    <p className="mt-4 mb-8 dark:text-gray-600">Para regresar al inicio presiona el boton de abajo.</p>
                     <Link rel="noopener noreferrer" to="/" className="px-8 py-3 font-semibold cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md">Regresar a la pagina de inicio</Link>
                 </div>
             </div>
