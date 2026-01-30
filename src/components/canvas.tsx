@@ -36,7 +36,7 @@ function Canvas() {
       <div className="border border-gray-800 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-40" }}
+          canvasProps={{ className: "sigCanvas w-full h-auto" }}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
           minWidth={3.5}
