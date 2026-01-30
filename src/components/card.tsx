@@ -1,6 +1,7 @@
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../services/api.config";
+
 import Input from "./input"
 import Boton from "./boton"
 import axios from "axios"
@@ -17,7 +18,7 @@ const Card = () => {
         e.preventDefault();
         try {
             const credenciales = { Email: email, Password: password };
-            const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales);
+            const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales); // --------
             localStorage.setItem('token', response.data.token);
             localStorage.setItem("auth", "true");
             localStorage.setItem("empresaname", email);

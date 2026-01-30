@@ -1,25 +1,25 @@
 import React, { useState, useEffect, useRef } from "react";
+
 import Select from "./select";
 import Input from "./input";
 import Boton from "./boton";
 import Canvas from "./canvas";
 import Modal from "./modal";
+import EnviarEmpleado from "../context/EnviarEmpleado";
 
 import type { datosEmpleado } from "../models/api.models";
 
+import { useEmpleado } from "../context/EmpleadoContext";
 import { useSelectApi } from "../hooks/useSelectApi";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
-import {
-    OPCIONES_TIPO_JORNAL,
-    OPCIONES_ESTADO_CIVIL,
-    OPCIONES_SEXO,
-} from "./data";
+import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
 function CardFor() {
+    const { huellaBase64, datos, setDatos, setHuellaBase64, } = useEmpleado();
+
     const [modalAbierto, setModalAbierto] = useState(false);
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>();
-    const [huellaBase64, setHuellaBase64] = useState("");
 
     const sdkRef = useRef<any>(null);
     const timeoutRef = useRef<number | null>(null);
@@ -28,27 +28,11 @@ function CardFor() {
     const [, setIdEmpresaSel] = useState("");
     const [, setListaEmpleadosOriginal] = useState<datosEmpleado[]>([]);
 
+    ///// FECHA
     const hoy = new Date();
     const maxFecha = new Date(hoy.getFullYear() - 10, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
 
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
-
-    const [datos, setDatos] = useState<datosEmpleado>({
-        empleadoId: "",
-        empleadoNombre: "",
-        apellidoPaterno: "",
-        apellidoMaterno: "",
-        empleadoCURP: "",
-        empleadoRFC: "",
-        sexo: "",
-        fechaNacimiento: "",
-        domicilio: "",
-        colonia: "",
-        codigoPostal: 0,
-        lugarNacimiento: "",
-        estadoCivil: "",
-        tipoJornal: "",
-    });
 
     const { options: empresasOptions } = useSelectApi(
         getNombreEmpresas,
@@ -57,7 +41,7 @@ function CardFor() {
 
     useEffect(() => {
         const cargarEmpleados = async () => {
-            const res = await api.get<datosEmpleado[]>(
+            const res = await api.get<datosEmpleado[]>( // ------  
                 "/agrosmart/ags_empleado/contrato"
             );
             setListaEmpleadosOriginal(res.data);
@@ -65,7 +49,8 @@ function CardFor() {
         cargarEmpleados();
     }, []);
 
-    ///////////////////////////////// UTILIDADES \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    /////////////////////////// INICIO CONST MODAL \\\\\\\\\\\\\\\\\\\\\\\\\\\
     const cerrarModal = (delay = 2000) => {
         setTimeout(() => setModalAbierto(false), delay);
     };
@@ -92,8 +77,11 @@ function CardFor() {
         setMensajeHuella(msg);
         detenerEscaneo();
     };
+    /////////////////////////// 
 
-    //////////////////////////////////// CAPTURAR HUELLA \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ///////////////////////////////////////// INICIO HANDLE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+    //// ESCANEO Y MANEJODE HUELLA
     const handleCapturarHuella = () => {
         if (escaneandoRef.current) return;
 
@@ -129,10 +117,9 @@ function CardFor() {
                     .replace(/-/g, "+")
                     .replace(/_/g, "/");
 
-                console.log("🧬 HUELLA BASE64:", base64);
-
                 setHuellaBase64(base64);
                 setEstadoHuella("ok");
+                console.log("La huella es base64 es: ", base64) ////////////////////  BORRAR  \\\\\\\\\\\\\\\\\\\\
                 detenerEscaneo();
             } catch {
                 manejarErrorHuella("Error al procesar la huella");
@@ -156,31 +143,40 @@ function CardFor() {
             })
             .catch(() => manejarErrorHuella("No se pudo iniciar el lector"));
     };
+    ////
 
+    //// BUSCAR POR ID Y TECLA 'ENTER'
     const handleEmpleadoKeyDown = async (
         e: React.KeyboardEvent<HTMLInputElement>
     ) => {
         if (e.key !== "Enter") return;
         e.preventDefault();
 
-        const empleado = await getDatosEmpleado(datos.empleadoId);
-        empleado
-            ? setDatos(empleado)
-            : alert("Empleado no encontrado");
-    };
+        try {
+            const empleado = await getDatosEmpleado(datos.empleadoId);
 
-    const handleFirmaRecibida = (url: string) => {
-        console.log("✍️ Firma:", url);
+            if (!empleado) {
+                alert("Empleado no existe");
+                return;
+            }
+
+            setDatos(empleado);
+
+        } catch (error) {
+            console.error("Error de conexión", error);
+            alert("No hay conexión con el servidor");
+        }
     };
+    ////
 
     const handleInputChange = (campo: keyof datosEmpleado, valor: any) => {
-        setDatos((prev) => ({ ...prev, [campo]: valor }));
-        // CAMBIAR, BORRAR O MODIFICAR HACER BIEN EL MEDOTO POST PARA ENVIAR LOS DATOS
-        // DE ESTE FORMULARIO AL CANVAS INCUIDO EL BASE64 DE HUELLA, Y LA IAMGEN DE LA FIRMA
-        localStorage.setItem("Empleado", JSON.stringify(datos))
+        setDatos((prev) => ({
+            ...prev,
+            [campo]: valor,
+        }));
     };
+    ///////////////////////////////////////// 
 
-    //////////////////////////////////////////////// FIN CONST HANDLE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     return (
         <div className="p-3">
@@ -335,18 +331,24 @@ function CardFor() {
                         <Boton
                             nombreBoton="Capturar huella"
                             color={`cursor-pointer mb-4 text-white 
-                                ${huellaBase64 ? 'bg-green-600 hover:bg-green-700' : 'bg-blue-500 hover:bg-blue-600'}`}
+                             ${huellaBase64
+                                    ? "bg-green-600 hover:bg-green-700"
+                                    : "bg-blue-500 hover:bg-blue-600"
+                                }`}
                             onClick={handleCapturarHuella}
                         />
 
                         {huellaBase64 && (
                             <div className="mb-4 p-2 bg-green-100 border border-green-500 rounded">
-                                <span className="text-green-700 text-sm font-bold">✓ Huella capturada y lista</span>
+                                <span className="text-green-700 text-sm font-bold">
+                                    ✓ Huella capturada
+                                </span>
                             </div>
                         )}
 
-                        <Canvas onEnviar={handleFirmaRecibida} />
 
+                        <Canvas />
+                        <EnviarEmpleado />
                     </div>
                 </div>
             </div>

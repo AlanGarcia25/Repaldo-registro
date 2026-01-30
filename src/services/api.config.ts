@@ -17,7 +17,7 @@ api.interceptors.request.use((config) => {
 
 export const getNombreEmpresas = async () => {
   try {
-    const response = await api.get<nombreEmpresas[]>("/empresa/login");
+    const response = await api.get<nombreEmpresas[]>("/empresa/login"); // -------
     return response.data;
   } catch (error) {
     console.error("Error al obtener empresas:", error);
@@ -26,18 +26,17 @@ export const getNombreEmpresas = async () => {
 };
 
 export const getDatosEmpleado = async (
-  empleadoId: string
+  empleadoId: string,
 ): Promise<datosEmpleado | null> => {
   try {
-    const res = await api.get<datosEmpleado>(`/agrosmart/ags_empleado/contrato/${empleadoId}`);
-    console.log("Datos obtenidos con exito :D !!!!!")
+    const res = await api.get<datosEmpleado>(
+      `/agrosmart/ags_Empleado/contrato/${empleadoId}`, // --------
+    );
     return res.data;
-  } catch (error) {
-    console.error("Error al obtener empleado  :C", error);
-    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      return null;
+    }
+    throw error;
   }
 };
-
-export const postDatosEmpleado = axios.post('',{
-  nombreUsuario: ''
-})

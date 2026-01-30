@@ -1,6 +1,6 @@
 import type { BotonProps } from "../models/api.models";
 
-function Boton({ nombreBoton, color, disabled , onClick }: BotonProps) {
+function Boton({ nombreBoton, color, disabled, onClick }: BotonProps) {
     return (
         <div className="flex flex-col w-full align-center mx-auto gap-4 pb-4 pt-4 " >
             <button
