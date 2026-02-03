@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import swal from 'sweetalert'
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";
@@ -9,7 +10,7 @@ function Canvas() {
   const sigCanvas = useRef<SignatureCanvas>(null);
   const [estaVacio, setEstaVacio] = useState(true);
 
-  const { setFirmaBase64 } = useEmpleado();
+  const { setUrlFirma } = useEmpleado();
 
   const handleClear = () => {
     sigCanvas.current?.clear();
@@ -18,17 +19,24 @@ function Canvas() {
 
   const guardarFirma = () => {
     if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
-      alert("Debe firmar");
       return;
     }
 
-    const firmaBase64 = sigCanvas.current
+    const urlFirma = sigCanvas.current
       .getCanvas()
       .toDataURL("image/png");
 
-    setFirmaBase64(firmaBase64);
-    alert("Firma guardada");
-    console.log("La firma base64 es: ", firmaBase64) 
+    setUrlFirma(urlFirma);
+    swal({
+      title: "Envio exitoso",
+      text: "La firma se ha guardado",
+      icon: "success",
+      timer: 2000,
+      buttons:{
+        visble:false
+      }
+    })
+    console.log("La url de la firma es: ", urlFirma) ///////////// BORRAR
   };
 
   return (
@@ -55,7 +63,7 @@ function Canvas() {
           nombreBoton="Guardar firma"
           onClick={guardarFirma}
           disabled={estaVacio ? true : false}
-          color={ estaVacio? "bg-yellow-600/40 cursor-not-allowed": "bg-yellow-600 hover:bg-yellow-700"}
+          color={estaVacio ? "bg-yellow-600/40 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-700"}
         />
       </div>
     </div>

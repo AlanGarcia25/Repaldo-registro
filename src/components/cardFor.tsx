@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import swal from 'sweetalert';
 
 import Select from "./select";
 import Input from "./input";
@@ -112,6 +113,7 @@ function CardFor() {
 
                 const rawData = samples?.[0]?.Data || samples?.[0]?.data;
                 if (!rawData) throw new Error();
+                console.log("URL de la imagen", rawData)
 
                 const base64 = rawData
                     .replace(/-/g, "+")
@@ -146,25 +148,51 @@ function CardFor() {
     ////
 
     //// BUSCAR POR ID Y TECLA 'ENTER'
-    const handleEmpleadoKeyDown = async (
-        e: React.KeyboardEvent<HTMLInputElement>
-    ) => {
+    const handleEmpleadoKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") return;
         e.preventDefault();
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+
         try {
-            const empleado = await getDatosEmpleado(datos.empleadoId);
+            const empleado = await getDatosEmpleado(datos.empleadoId, { signal: controller.signal });
+            clearTimeout(timeoutId);
 
             if (!empleado) {
-                alert("Empleado no existe");
+                swal({
+                    title: "Error",
+                    text: "El empleado no existe",
+                    icon: "error",
+                    timer: 3000
+                });
                 return;
             }
-
             setDatos(empleado);
 
-        } catch (error) {
-            console.error("Error de conexión", error);
-            alert("No hay conexión con el servidor");
+        } catch (error: any) {
+            if (error.name === 'AbortError') {
+                swal({
+                    title: "Timeout",
+                    text: "El servidor tardó demasiado en responder",
+                    icon: "warning",
+                    timer: 2000,
+                    buttons: {
+                        visble: false
+                    }
+                });
+            } else {
+                console.error("Error de conexión", error);
+                swal({
+                    title: "Error de conexion",
+                    text: "Fallo la conexion con el servidor",
+                    icon: "error",
+                    timer: 2000,
+                    buttons: {
+                        visble: false
+                    }
+                });
+            }
         }
     };
     ////
@@ -337,7 +365,6 @@ function CardFor() {
                                 }`}
                             onClick={handleCapturarHuella}
                         />
-
                         {huellaBase64 && (
                             <div className="mb-4 p-2 bg-green-100 border border-green-500 rounded">
                                 <span className="text-green-700 text-sm font-bold">
@@ -345,8 +372,6 @@ function CardFor() {
                                 </span>
                             </div>
                         )}
-
-
                         <Canvas />
                         <EnviarEmpleado />
                     </div>

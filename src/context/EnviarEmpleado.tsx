@@ -1,8 +1,9 @@
 import { api } from "../services/api.config";
+import swal from 'sweetalert'
 import { useEmpleado } from "../context/EmpleadoContext";
 
 function EnviarEmpleado() {
-    const { datos, huellaBase64, firmaBase64 } = useEmpleado();
+    const { datos, huellaBase64, urlFirma, limpiarEmpleado } = useEmpleado();
 
     const camposRequeridos = [
         datos.empleadoId,
@@ -16,28 +17,58 @@ function EnviarEmpleado() {
         datos.domicilio,
     ];
 
-    const hayCamposVacios = camposRequeridos.some( (campo) => !campo || campo.toString().trim() === "" );
+    const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
 
     const deshabilitado =
-        hayCamposVacios || !huellaBase64 || !firmaBase64;
+        hayCamposVacios || !huellaBase64 || !urlFirma;
 
     const handleEnviar = async () => {
         if (deshabilitado) {
-            alert("❌ Ningún campo debe estar vacío");
+            swal({
+                title: "Advertencia",
+                text: "Ningun campo debe de estar vacio",
+                icon: "warning",
+                timer: 3000,
+                buttons: {
+                    visble: false
+                }
+            })
             return;
         }
 
         const payload = {
             ...datos,
             huellaBase64,
-            firmaBase64,};
+            urlFirma,
+        };
 
         try {
             await api.post("/agrosmart/ags_empleado/guardar", payload); // --------
-            alert("✅ Empleado enviado correctamente");
+            swal({
+                title: "Envio exitoso",
+                text: "Formulario enviado con exito",
+                icon: "success",
+                timer: 2000,
+                buttons: {
+                    visble: false
+                }
+            }).then(() => {
+                console.log(JSON.stringify(payload))//////////////////////// BORRAR 
+                limpiarEmpleado()
+            })
         } catch (error) {
             console.error(error);
-            alert("❌ Error al enviar empleado");
+            swal({
+                title: "Error",
+                text: "No se pudo enviar los datos",
+                icon: "error",
+                timer: 3000,
+                buttons: {
+                    visble: false
+                }
+            }).then(() => {
+                limpiarEmpleado()
+            })
         }
     };
 
@@ -48,8 +79,8 @@ function EnviarEmpleado() {
                 onClick={handleEnviar}
                 className=
                 {`w-full py-2 px-4 rounded-md text-white transition 
-                ${deshabilitado? "bg-green-600/50 cursor-not-allowed" 
-                : "bg-green-600 hover:bg-green-700 cursor-pointer"}`}>
+                ${deshabilitado ? "bg-green-600/50 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700 cursor-pointer"}`}>
                 Enviar datos
             </button>
         </div>
