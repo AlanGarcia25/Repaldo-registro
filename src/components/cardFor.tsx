@@ -106,24 +106,30 @@ function CardFor() {
 
         sdk.onSamplesAcquired = (s: any) => {
             try {
-                const samples =
-                    typeof s.samples === "string"
-                        ? JSON.parse(s.samples)
-                        : s.samples;
+                const samples = typeof s.samples === "string"
+                    ? JSON.parse(s.samples)
+                    : s.samples;
 
-                const rawData = samples?.[0]?.Data || samples?.[0]?.data;
-                if (!rawData) throw new Error();
-                console.log("URL de la imagen", rawData)
+                if (!samples || samples.length === 0) throw new Error("No hay muestras");
 
-                const base64 = rawData
-                    .replace(/-/g, "+")
-                    .replace(/_/g, "/");
+                const rawData = typeof samples[0] === 'string'
+                    ? samples[0]
+                    : (samples[0].Data || samples[0].data);
 
-                setHuellaBase64(base64);
+                if (!rawData) throw new Error("No hay datos en la muestra");
+                const base64Limpio = rawData.trim().replace(/-/g, "+").replace(/_/g, "/");
+                const urlFinal = `data:image/png;base64,${base64Limpio}`;
+                const huellaBase64 = base64Limpio;
+
+                console.log('La imagen de la huella es: ', urlFinal);//////////////////////// BORRAR
+                console.log('El formato base64 de la huella es: ', huellaBase64);/////// BORRAR
+
+                setHuellaBase64(urlFinal); 
                 setEstadoHuella("ok");
-                console.log("La huella es base64 es: ", base64) ////////////////////  BORRAR  \\\\\\\\\\\\\\\\\\\\
                 detenerEscaneo();
-            } catch {
+
+            } catch (e) {
+                console.error("Error al procesar:", e);
                 manejarErrorHuella("Error al procesar la huella");
             }
         };
@@ -139,7 +145,7 @@ function CardFor() {
                     return;
                 }
                 sdk.startAcquisition(
-                    Fingerprint.SampleFormat.Intermediate,
+                    Fingerprint.SampleFormat.PngImage,
                     devices[0]
                 );
             })
