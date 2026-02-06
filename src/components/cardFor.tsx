@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import swal from 'sweetalert';
+import Swal from 'sweetalert2'
 
 import Select from "./select";
 import Input from "./input";
@@ -15,12 +15,16 @@ import { useSelectApi } from "../hooks/useSelectApi";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
+
+
 function CardFor() {
     const { huellaBase64, datos, setDatos, setHuellaBase64, } = useEmpleado();
 
     const [modalAbierto, setModalAbierto] = useState(false);
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>();
+    const [imagenHuella, setImagenHuella] = useState('')
+    const [cargando, setCargando] = useState(false)
 
     const sdkRef = useRef<any>(null);
     const timeoutRef = useRef<number | null>(null);
@@ -56,21 +60,45 @@ function CardFor() {
         setTimeout(() => setModalAbierto(false), delay);
     };
 
-    const detenerEscaneo = () => {
+    useEffect(() => {
+        return () => {
+            if (sdkRef.current) {
+                try {
+                    sdkRef.current.stopAcquisition();
+                } catch (e) {
+                    console.warn("Limpieza al desmontar:", e);
+                }
+            }
+        };
+    }, []);
+
+    const detenerEscaneo = async () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
             timeoutRef.current = null;
         }
 
-        if (sdkRef.current) {
-            try {
-                sdkRef.current.stopAcquisition();
-            } catch { }
-            sdkRef.current = null;
-        }
-
         escaneandoRef.current = false;
         cerrarModal();
+
+        if (sdkRef.current) {
+            const sdkCopia = sdkRef.current;
+            sdkRef.current = null;
+
+            try {
+                sdkCopia.onSamplesAcquired = null;
+                sdkCopia.onCommunicationFailed = null;
+
+                await Promise.race([
+                    sdkCopia.stopAcquisition(),
+                    new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1500))
+                ]);
+
+                console.log("Conexión liberada con éxito.");
+            } catch (e) {
+                console.warn("El SDK no respondió, pero la memoria fue liberada.");
+            }
+        }
     };
 
     const manejarErrorHuella = (msg: string) => {
@@ -83,73 +111,105 @@ function CardFor() {
     ///////////////////////////////////////// INICIO HANDLE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     //// ESCANEO Y MANEJODE HUELLA
-    const handleCapturarHuella = () => {
+    const handleCapturarHuella = async () => {
+        let yaSeMostroBloqueo = false;
+
         if (escaneandoRef.current) return;
 
-        escaneandoRef.current = true;
+        if (sdkRef.current) {
+            try {
+                await sdkRef.current.stopAcquisition();
+            } catch (e) { }
+            sdkRef.current = null;
+        }
+
         setModalAbierto(true);
         setEstadoHuella("escaneando");
         setMensajeHuella(undefined);
+        escaneandoRef.current = true;
 
         timeoutRef.current = window.setTimeout(() => {
-            manejarErrorHuella("Tiempo de espera agotado");
-        }, 5000);
-
-        const Fingerprint = (window as any).Fingerprint;
-        if (!Fingerprint) {
-            manejarErrorHuella("SDK de huella no disponible");
-            return;
-        }
-
-        const sdk = new Fingerprint.WebApi(8000);
-        sdkRef.current = sdk;
-
-        sdk.onSamplesAcquired = (s: any) => {
-            try {
-                const samples = typeof s.samples === "string"
-                    ? JSON.parse(s.samples)
-                    : s.samples;
-
-                if (!samples || samples.length === 0) throw new Error("No hay muestras");
-
-                const rawData = typeof samples[0] === 'string'
-                    ? samples[0]
-                    : (samples[0].Data || samples[0].data);
-
-                if (!rawData) throw new Error("No hay datos en la muestra");
-                const base64Limpio = rawData.trim().replace(/-/g, "+").replace(/_/g, "/");
-                const urlFinal = `data:image/png;base64,${base64Limpio}`;
-                const huellaBase64 = base64Limpio;
-
-                console.log('La imagen de la huella es: ', urlFinal);//////////////////////// BORRAR
-                console.log('El formato base64 de la huella es: ', huellaBase64);/////// BORRAR
-
-                setHuellaBase64(urlFinal); 
-                setEstadoHuella("ok");
-                detenerEscaneo();
-
-            } catch (e) {
-                console.error("Error al procesar:", e);
-                manejarErrorHuella("Error al procesar la huella");
+            if (!yaSeMostroBloqueo) {
+                manejarErrorHuella("Tiempo de espera agotado");
             }
-        };
+        }, 10000);
 
-        sdk.onCommunicationFailed = () => {
-            manejarErrorHuella("Error de comunicación con el lector");
-        };
+        try {
+            const Fingerprint = (window as any).Fingerprint;
+            if (!Fingerprint) throw new Error("SDK no disponible");
 
-        sdk.enumerateDevices()
-            .then((devices: any[]) => {
-                if (!devices.length) {
-                    manejarErrorHuella("Lector no detectado");
-                    return;
+            const sdk = new Fingerprint.WebApi();
+            sdkRef.current = sdk;
+
+            const devices = await Promise.race([
+                sdk.enumerateDevices(),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error("SERVICIO_BLOQUEADO")), 3500)
+                )
+            ]) as any[];
+
+            if (!devices || devices.length === 0) {
+                throw new Error("Conecte el lector");
+            }
+
+            sdk.onSamplesAcquired = async (s: any) => {
+                if (yaSeMostroBloqueo) return;
+                try {
+                    const samples = typeof s.samples === "string" ? JSON.parse(s.samples) : s.samples;
+                    const rawData = typeof samples[0] === 'string' ? samples[0] : (samples[0].Data || samples[0].data);
+                    const base64Limpio = rawData.trim().replace(/-/g, "+").replace(/_/g, "/");
+
+                    setHuellaBase64(base64Limpio);
+                    setImagenHuella(`data:image/png;base64,${base64Limpio}`);
+                    setEstadoHuella("ok");
+                    await detenerEscaneo();
+                } catch (e) {
+                    manejarErrorHuella("Error al procesar huella");
                 }
-                sdk.startAcquisition(
-                    Fingerprint.SampleFormat.PngImage,
-                    devices[0]
-                );
-            })
-            .catch(() => manejarErrorHuella("No se pudo iniciar el lector"));
+            };
+
+            sdk.onCommunicationFailed = () => {
+                if (!yaSeMostroBloqueo) {
+                    manejarErrorHuella("Fallo de comunicación con el servicio local");
+                }
+            };
+
+            await sdk.startAcquisition(Fingerprint.SampleFormat.PngImage, devices[0]);
+
+        } catch (error: any) {
+            if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
+
+            sdkRef.current = null;
+            escaneandoRef.current = false;
+
+            if (error.message === "SERVICIO_BLOQUEADO") {
+                yaSeMostroBloqueo = true;
+                setModalAbierto(false);
+
+                Swal.fire({
+                    title: 'Lector Saturado',
+                    text: 'El servicio ha superado el límite de conexiones permitido.',
+                    icon: 'warning',
+                    showCancelButton: false,
+                    confirmButtonText: 'Reiniciar Lector',
+                    customClass: {
+                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg',
+                        title: 'text-2xl font-bold text-gray-800',
+                        popup: 'rounded-xl border-2 border-yellow-400'
+                    },
+                    buttonsStyling: false,
+                    allowOutsideClick: false
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.reload();
+                    }
+                });
+            } else {
+                if (!yaSeMostroBloqueo) {
+                    manejarErrorHuella(error.message || "Lector no listo");
+                }
+            }
+        }
     };
     ////
 
@@ -157,6 +217,10 @@ function CardFor() {
     const handleEmpleadoKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key !== "Enter") return;
         e.preventDefault();
+
+        if (cargando)
+            return;
+        setCargando(true)
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -166,7 +230,7 @@ function CardFor() {
             clearTimeout(timeoutId);
 
             if (!empleado) {
-                swal({
+                Swal.fire({
                     title: "Error",
                     text: "El empleado no existe",
                     icon: "error",
@@ -178,27 +242,27 @@ function CardFor() {
 
         } catch (error: any) {
             if (error.name === 'AbortError') {
-                swal({
+                Swal.fire({
                     title: "Timeout",
                     text: "El servidor tardó demasiado en responder",
                     icon: "warning",
                     timer: 2000,
-                    buttons: {
-                        visble: false
-                    }
+                    showConfirmButton: false,
+                    timerProgressBar: true,
                 });
             } else {
                 console.error("Error de conexión", error);
-                swal({
+                Swal.fire({
                     title: "Error de conexion",
                     text: "Fallo la conexion con el servidor",
                     icon: "error",
                     timer: 2000,
-                    buttons: {
-                        visble: false
-                    }
+                    showConfirmButton: false,
+                    timerProgressBar: true,
                 });
             }
+        } finally {
+            setCargando(false)
         }
     };
     ////
@@ -372,11 +436,21 @@ function CardFor() {
                             onClick={handleCapturarHuella}
                         />
                         {huellaBase64 && (
-                            <div className="mb-4 p-2 bg-green-100 border border-green-500 rounded">
-                                <span className="text-green-700 text-sm font-bold">
-                                    ✓ Huella capturada
-                                </span>
+                            <div className="flex items-center justify-between gap-4 p-2">
+                                <div className="flex-1">
+                                    <h1 className="text-2xl font-bold">¡Captura exitosa!</h1>
+                                    <p className="text-gray-500">La huella capturada es la siguiente</p>
+                                </div>
+
+                                <div className="w-35 h-32 overflow-hidden rounded-lg shrink-0">
+                                    <img
+                                        className="w-full h-full object-cover"
+                                        src={imagenHuella}
+                                        alt="Huella"
+                                    />
+                                </div>
                             </div>
+
                         )}
                         <Canvas />
                         <EnviarEmpleado />
@@ -387,6 +461,7 @@ function CardFor() {
                 abierto={modalAbierto}
                 estado={estadoHuella}
                 mensaje={mensajeHuella}
+                onClose={() => setModalAbierto(false)}
             />
         </div>
     );

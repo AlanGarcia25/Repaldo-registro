@@ -27,12 +27,12 @@ export const getNombreEmpresas = async () => {
 
 export const getDatosEmpleado = async (
   empleadoId: string,
-  options?: { signal?: AbortSignal }, 
+  options?: { signal?: AbortSignal },
 ): Promise<datosEmpleado | null> => {
   try {
     const res = await api.get<datosEmpleado>(
-      `/agrosmart/ags_Empleado/contrato/${empleadoId}`,// --------
-       options 
+      `/agrosmart/ags_Empleado/contrato/${empleadoId}`, // --------
+      options,
     );
     return res.data;
   } catch (error: any) {

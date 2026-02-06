@@ -1,5 +1,5 @@
 import { useRef, useState } from "react";
-import swal from 'sweetalert'
+import Swal from 'sweetalert2'
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";
@@ -27,20 +27,19 @@ function Canvas() {
       .toDataURL("image/png");
 
     setUrlFirma(urlFirma);
-    swal({
+    Swal.fire({
       title: "Envio exitoso",
       text: "La firma se ha guardado",
       icon: "success",
       timer: 2000,
-      buttons:{
-        visble:false
-      }
+      showConfirmButton: false,
+      timerProgressBar: true,
     })
-    console.log("La url de la firma es: ", urlFirma) ///////////// BORRAR
+    // console.log("La url de la firma es: ", urlFirma) ///////////// BORRAR
   };
 
   return (
-    <div className="pt-2">
+    <div className="pt-6">
       <div className="border border-gray-800 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}

@@ -1,4 +1,4 @@
-import swal from 'sweetalert';
+import Swal from 'sweetalert2';
 import React, { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../services/api.config";
@@ -16,52 +16,55 @@ const Card = () => {
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         if (!email.trim() || !password.trim()) {
-            swal({
+            Swal.fire({
                 title: "Atencion",
                 text: "Por favor, completa todos los campos",
                 icon: "warning",
-                timer: 1500,
-                buttons: {
-                    visble: false
-                }
+                timer: 2100,
+                showConfirmButton: false,
+                timerProgressBar: true,
             })
             return;
-        } 
+        }
         try {
             const credenciales = { Email: email, Password: password };
             console.log(JSON.stringify(credenciales, null, 2))
-            const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales,{ timeout:5000 }); // --------
+            const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales, { timeout: 5000 }); // --------
             localStorage.setItem('token', response.data.token);
             localStorage.setItem("auth", "true");
             localStorage.setItem("empresaname", email);
-            await swal({
+            await Swal.fire({
                 title: "Exito",
                 text: "Se inicio sesion",
                 icon: "success",
                 timer: 2000,
-                buttons: {
-                    visble: false
-                }
+                showConfirmButton: false,
+                timerProgressBar: true,
+                // RECTIFICAR QUE LOS ESTILOS SE VEA DE MANERA CORRECTA
+                toast: true,
+                position: "top-end",
+                background: '#EBE6E6',
+                color: '#000'
+                //
             })
             setEmail('')
             setPassword('')
             navigate("/formulario", { replace: true });
 
         } catch (error) {
-            swal({
+            Swal.fire({
                 title: "Error",
                 text: "No se pudo iniciar sesion",
                 icon: "error",
                 timer: 3000,
-                buttons: {
-                    visble: false
-                }
+                showConfirmButton: false,
+                timerProgressBar: true,
             }).then(() => {
                 setEmail('')
                 setPassword('')
             })
             console.error("Error al iniciar sesion", error);
-        } 
+        }
     };
 
 

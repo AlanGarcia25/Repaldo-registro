@@ -1,5 +1,6 @@
+import Swal from 'sweetalert2'
+
 import { api } from "../services/api.config";
-import swal from 'sweetalert'
 import { useEmpleado } from "../context/EmpleadoContext";
 
 function EnviarEmpleado() {
@@ -15,6 +16,7 @@ function EnviarEmpleado() {
         datos.sexo,
         datos.estadoCivil,
         datos.domicilio,
+        datos.tipoJornal,
     ];
 
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
@@ -24,14 +26,14 @@ function EnviarEmpleado() {
 
     const handleEnviar = async () => {
         if (deshabilitado) {
-            swal({
+            Swal.fire({
                 title: "Advertencia",
                 text: "Ningun campo debe de estar vacio",
                 icon: "warning",
-                timer: 3000,
-                buttons: {
-                    visble: false
-                }
+                timer: 2500,
+                showConfirmButton: false,
+                timerProgressBar: true,
+                allowOutsideClick: false
             })
             return;
         }
@@ -44,28 +46,27 @@ function EnviarEmpleado() {
 
         try {
             await api.post("/agrosmart/ags_empleado/guardar", payload); // --------
-            swal({
+            Swal.fire({
                 title: "Envio exitoso",
                 text: "Formulario enviado con exito",
                 icon: "success",
                 timer: 2000,
-                buttons: {
-                    visble: false
-                }
+                showConfirmButton: false,
+                timerProgressBar: true,
+                allowOutsideClick: false
             }).then(() => {
                 console.log(JSON.stringify(payload))//////////////////////// BORRAR 
                 limpiarEmpleado()
             })
         } catch (error) {
             console.error(error);
-            swal({
+            Swal.fire({
                 title: "Error",
                 text: "No se pudo enviar los datos",
                 icon: "error",
                 timer: 3000,
-                buttons: {
-                    visble: false
-                }
+                showConfirmButton: false,
+                timerProgressBar: true,
             }).then(() => {
                 limpiarEmpleado()
             })
@@ -81,7 +82,7 @@ function EnviarEmpleado() {
                 {`w-full py-2 px-4 rounded-md text-white transition 
                 ${deshabilitado ? "bg-green-600/50 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 cursor-pointer"}`}>
-                Enviar datos
+                Cargar documento
             </button>
         </div>
     );

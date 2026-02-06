@@ -2,9 +2,9 @@ import { type SelectOption } from "../hooks/useSelectApi";
 
 // TIPO JORNAL
 export const OPCIONES_TIPO_JORNAL: SelectOption[] = [
-  { value: 1, label: "Eventual" },
-  { value: 3, label: "Fijo" },
-  { value: 2, label: "Otro" },
+  { value: "Eventual", label: "Eventual" },
+  { value: "Fijo", label: "Fijo" },
+  { value: "Otro", label: "Otro" },
 ];
 
 // GENERO
@@ -16,7 +16,7 @@ export const OPCIONES_SEXO: SelectOption[] = [
 
 // ESTADO CIVIL
 export const OPCIONES_ESTADO_CIVIL: SelectOption[] = [
-  { value: "S", label: "Soltero(a)" },
-  { value: "C", label: "Casado(a)" },
-  { value: "D", label: "Divorciado(a)" },
+  { value: "Soltero", label: "Soltero" },
+  { value: "Casado", label: "Casado" },
+  { value: "Divorciado", label: "Divorciado" },
 ];
