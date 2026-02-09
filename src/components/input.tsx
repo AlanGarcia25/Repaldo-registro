@@ -4,13 +4,13 @@ import type { InputProps } from "../models/api.models";
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({nombre = "" ,tipo = "text", placeholder = "", value, onChange, onBlur, readOnly = false, onKeyDown, max, min}, ref) => {
     return (
-      <div className="flex flex-col align-center pb-3 pt-3">
-        <label className="text-sm py- font-bold text-gray-700">{nombre}</label>
+      <div className="flex flex-col align-center py-2">
+        <label className="text-sm font-bold text-gray-700">{nombre}</label>
         <input
           ref={ref}
-          className="w-full min-w-0 border-b-[.1px] border-black p-1.5 focus:outline-none font-sans bg-transparent focus:border-blue-700"
+          className={`${readOnly ? "cursor-not-allowed " : "focus:border-blue-700 bg-transparent"} w-full min-w-0 border-b-[.1px] border-black p-1.5 focus:outline-none font-sans`}
           type={tipo}
-          placeholder={placeholder}
+          placeholder={readOnly ? "Datos del sistema" : placeholder }
           value={value ?? ""}
           readOnly={readOnly}
           onChange={(e) => onChange(e.target.value)}

@@ -28,18 +28,19 @@ function Canvas() {
 
     setUrlFirma(urlFirma);
     Swal.fire({
-      title: "Envio exitoso",
+      title: "Guardado exitoso!",
       text: "La firma se ha guardado",
       icon: "success",
-      timer: 2000,
+      timer: 1800,
       showConfirmButton: false,
+      allowOutsideClick: false,
       timerProgressBar: true,
     })
     // console.log("La url de la firma es: ", urlFirma) ///////////// BORRAR
   };
 
   return (
-    <div className="pt-6">
+    <div className="">
       <div className="border border-gray-800 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}

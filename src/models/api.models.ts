@@ -13,7 +13,7 @@ export interface datosEmpleado {
   empleadoCURP: string;
   empleadoRFC: string;
   sexo: string;
-  fechaNacimiento: string;
+  fechaNacimiento: string | number;
   domicilio: string;
   colonia: string;
   codigoPostal: number;
@@ -36,7 +36,7 @@ export interface BotonProps {
 export interface InputProps {
   nombre: string;
   tipo: string;
-  placeholder: string;
+  placeholder?: string;
   value?: string | number;
   readOnly?: boolean;
   estilos?: string;

@@ -2,15 +2,14 @@ import type { SelectProps } from "../models/api.models";
 
 const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: SelectProps) => {
     return (
-        <div className="flex flex-col w-full">
-            <label className="text-sm font-bold ">{nombreSelect}</label>
+        <div className="flex flex-col align-center py-2">
+            <label className="text-sm font-bold text-gray-700">{nombreSelect}</label>
             <select
-                className="border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none"
+                className="border-b-[.1px] w-full min-w-0 p-1.5 border-black font-sans bg-transparent focus:border-blue-700 outline-none"
                 value={value || ""}
                 onChange={(e) => onChange(e.target.value)}
                 disabled={readOnly}
             >
-                {/* Cambia esto: agrega value="" */}
                 <option value="" disabled hidden>Seleccione una opción</option>
                 {options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
@@ -20,6 +19,6 @@ const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: Se
             </select>
         </div>
     );
-};
+};  
 
 export default Select;

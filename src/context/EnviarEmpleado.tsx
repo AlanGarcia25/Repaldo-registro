@@ -33,7 +33,10 @@ function EnviarEmpleado() {
                 timer: 2500,
                 showConfirmButton: false,
                 timerProgressBar: true,
-                allowOutsideClick: false
+                allowOutsideClick: false,
+                customClass: {
+                    timerProgressBar: '!h-2 m-px'
+                }
             })
             return;
         }

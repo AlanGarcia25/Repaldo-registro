@@ -35,7 +35,7 @@ function CardFor() {
 
     ///// FECHA
     const hoy = new Date();
-    const maxFecha = new Date(hoy.getFullYear() - 10, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
+    const maxFecha = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
 
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
 
@@ -236,6 +236,7 @@ function CardFor() {
                     icon: "error",
                     timer: 3000
                 });
+                window.location.reload
                 return;
             }
             setDatos(empleado);
@@ -284,7 +285,7 @@ function CardFor() {
                 <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg">
                     <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
 
-                    {/*  PRIMERA PARTE DEL MENU IZQUIERDO   */}
+                    {/* PRIMERA PARTE DEL MENU IZQUIERDO   */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
                         <Select
                             nombreSelect={"Empresas"}
@@ -311,7 +312,6 @@ function CardFor() {
                         <Input
                             nombre="Nombre"
                             tipo="text"
-                            placeholder="Nombre"
                             value={datos.empleadoNombre}
                             onChange={(val) => handleInputChange('empleadoNombre', val)}
                             readOnly={true}
@@ -319,7 +319,6 @@ function CardFor() {
                         <Input
                             nombre="Apellido Paterno"
                             tipo="text"
-                            placeholder="Apellido paterno"
                             value={datos.apellidoPaterno}
                             onChange={(val) => handleInputChange('apellidoPaterno', val)}
                             readOnly={true}
@@ -327,15 +326,14 @@ function CardFor() {
                         <Input
                             nombre="Apellido Materno"
                             tipo="text"
-                            placeholder="Apellido materno"
                             value={datos.apellidoMaterno}
                             onChange={(val) => handleInputChange('apellidoMaterno', val)}
                             readOnly={true}
                         />
                     </div>
 
-                    {/*  SEGUNA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                    {/* SEGUNA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-5">
                         <Input
                             nombre="CURP"
                             placeholder="CURP"
@@ -353,13 +351,6 @@ function CardFor() {
                             readOnly={true}
                         />
                         <Select
-                            nombreSelect={"Sexo"}
-                            options={OPCIONES_SEXO}
-                            value={datos.sexo}
-                            readOnly={false}
-                            onChange={(val) => handleInputChange("sexo", val)}
-                        />
-                        <Select
                             nombreSelect={"Estado Civil"}
                             options={OPCIONES_ESTADO_CIVIL}
                             value={datos.estadoCivil || ""}
@@ -367,18 +358,8 @@ function CardFor() {
                             onChange={(val) => { handleInputChange('estadoCivil', val) }}
                         />
                         <Input
-                            nombre="Fecha de Nacimiento"
-                            placeholder="Fecha de Nacimiento"
-                            tipo="date"
-                            min={minFecha}
-                            max={maxFecha}
-                            value={datos.fechaNacimiento}
-                            onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
-                            readOnly={false}
-                        />
-                        <Input
-                            nombre="Lugar de nacimiento"
-                            placeholder="Lugar"
+                            nombre={"Lugar de nacimiento".length > 15 ? "Lugar nac" : "Lugar de nacimiento"}
+                            placeholder="Estado, Ciudad, Municipio"
                             tipo="text"
                             value={datos.lugarNacimiento}
                             onChange={(val) => {
@@ -388,6 +369,39 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
+
+                        {/* FILA AGRUPADA: FECHA, SEXO Y CP */}
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
+                            <Input
+                                nombre="Fecha de Nacimiento"
+                                tipo="date"
+                                min={minFecha}
+                                max={maxFecha}
+                                value={datos.fechaNacimiento}
+                                onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
+                                onKeyDown={(e) => e.preventDefault()}
+                                readOnly={false}
+                            />
+                            <Select
+                                nombreSelect={"Sexo"}
+                                options={OPCIONES_SEXO}
+                                value={datos.sexo}
+                                readOnly={false}
+                                onChange={(val) => handleInputChange("sexo", val)}
+                            />
+                            <Input
+                                nombre="Código Postal"
+                                tipo="number"
+                                value={datos.codigoPostal}
+                                onChange={(val) => {
+                                    if (/^\d{0,5}$/.test(val)) {
+                                        handleInputChange('codigoPostal', val)
+                                    }
+                                }}
+                                readOnly={false}
+                            />
+                        </div>
+
                         <div className="col-span-1 sm:col-span-2 flex flex-col gap-2 w-full mt-1">
                             <label className="text-sm font-bold text-gray-700">Domicilio</label>
                             <textarea
@@ -399,61 +413,66 @@ function CardFor() {
                                 readOnly={false}
                             ></textarea>
                         </div>
-                        <Input
-                            nombre="Colonia"
-                            placeholder="Colonia"
-                            tipo="text"
-                            value={datos.colonia}
-                            onChange={(val) => { handleInputChange('colonia', val) }}
-                            readOnly={false}
-                        />
-                        <Input
-                            nombre="Código Postal"
-                            placeholder="C.P."
-                            tipo="number"
-                            value={datos.codigoPostal}
-                            onChange={(val) => {
-                                if (/^\d{0,5}$/.test(val)) {
-                                    handleInputChange('codigoPostal', val)
-                                }
-                            }}
-                            readOnly={false}
-                        />
+
+                        <div className="col-span-1 sm:col-span-2">
+                            <Input
+                                nombre="Colonia"
+                                placeholder="Colonia"
+                                tipo="text"
+                                value={datos.colonia}
+                                onChange={(val) => { handleInputChange('colonia', val) }}
+                                readOnly={false}
+                            />
+                        </div>
                     </div>
                 </div>
 
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-4">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4">Biométricos</h1>
-                    <div className="content-around text-center">
-                        <Boton
-                            nombreBoton="Capturar huella"
-                            color={`cursor-pointer mb-4 text-white 
-                             ${huellaBase64
-                                    ? "bg-green-600 hover:bg-green-700"
-                                    : "bg-blue-500 hover:bg-blue-600"
-                                }`}
-                            onClick={handleCapturarHuella}
-                        />
+                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-6 bg-white">
+                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">
+                        Biométricos
+                    </h1>
+
+                    <div className="flex flex-col gap-6">
+                        <div className="w-full">
+                            <Boton
+                                nombreBoton="Capturar huella"
+                                color={`cursor-pointer w-full
+                                ${huellaBase64
+                                        ? "bg-green-600 hover:bg-green-700"
+                                        : "bg-blue-500 hover:bg-blue-600"
+                                    }`}
+                                onClick={handleCapturarHuella}
+                            />
+                        </div>
+
                         {huellaBase64 && (
-                            <div className="flex items-center justify-between gap-4 p-2">
-                                <div className="flex-1">
-                                    <h1 className="text-2xl font-bold">¡Captura exitosa!</h1>
-                                    <p className="text-gray-500">La huella capturada es la siguiente</p>
+                            <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
+                                <div className="flex-1 text-center">
+                                    <h1 className="text-xl font-bold text-gray-800">¡Captura exitosa!</h1>
+                                    <p className="text-gray-500 text-sm">La huella capturada es la siguiente</p>
                                 </div>
 
-                                <div className="w-35 h-32 overflow-hidden rounded-lg shrink-0">
+                                <div className="w-32 h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
                                     <img
-                                        className="w-full h-full object-cover"
+                                        className="w-full h-full object-contain"
                                         src={imagenHuella}
                                         alt="Huella"
                                     />
                                 </div>
                             </div>
-
                         )}
-                        <Canvas />
-                        <EnviarEmpleado />
+
+                        <div className="w-full flex flex-col gap-2">
+                            <label className="text-sm font-bold text-gray-700 ml-1">Firma</label>
+                            <div className="w-full  overflow-hidden">
+                                <Canvas />
+                            </div>
+                        </div>
+
+                        <div className="mt-2 w-full">
+                            <EnviarEmpleado />
+                        </div>
                     </div>
                 </div>
             </div>

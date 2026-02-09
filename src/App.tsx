@@ -1,5 +1,5 @@
-import Card from './components/card' ; 
-// import Formulario from './Formulario';
+// import Card from './components/card' ; 
+import Formulario from './Formulario';
 
 import { EmpleadoProvider } from './context/EmpleadoContext';
 
@@ -8,8 +8,8 @@ function App() {
 
     <div className="@container">
       <EmpleadoProvider>
-        <Card />
-        {/* <Formulario /> */}
+        {/* <Card /> */}
+        <Formulario />
       </EmpleadoProvider>
     </div>
 
