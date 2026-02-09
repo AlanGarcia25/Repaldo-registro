@@ -74,11 +74,11 @@ const Card = () => {
                 <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
-                        nombre="Usuario"
+                        nombre="Correo"
                         tipo="email"
                         value={email}
                         onChange={(value) => setEmail(value)}
-                        placeholder="Ingresa tu correo"
+                        placeholder="tucorreo@ejemplo.com"
                     />
                     <Input
                         nombre="Contraseña"

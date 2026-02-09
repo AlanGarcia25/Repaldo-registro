@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { datosEmpleado } from "../models/api.models";
 
-// Define los valores iniciales fuera para reusarlos
 const valoresIniciales: datosEmpleado = {
   empleadoId: '',
   empleadoNombre: '',

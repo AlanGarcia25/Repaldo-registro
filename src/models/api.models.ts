@@ -16,7 +16,7 @@ export interface datosEmpleado {
   fechaNacimiento: string | number;
   domicilio: string;
   colonia: string;
-  codigoPostal: number;
+  codigoPostal: number | string;
   lugarNacimiento: string;
   // NO SE USA DE MOMENTO
   estadoCivil: string;
@@ -34,7 +34,7 @@ export interface BotonProps {
 
 // USO PARA EL COMPONENTE "input"
 export interface InputProps {
-  nombre: string;
+  nombre: React.ReactNode;
   tipo: string;
   placeholder?: string;
   value?: string | number;

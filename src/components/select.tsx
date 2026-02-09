@@ -5,7 +5,7 @@ const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: Se
         <div className="flex flex-col align-center py-2">
             <label className="text-sm font-bold text-gray-700">{nombreSelect}</label>
             <select
-                className="border-b-[.1px] w-full min-w-0 p-1.5 border-black font-sans bg-transparent focus:border-blue-700 outline-none"
+                className="italic border-b-[.1px] w-full min-w-0 p-1.5 border-black font-sans bg-transparent focus:border-blue-700 outline-none"
                 value={value || ""}
                 onChange={(e) => onChange(e.target.value)}
                 disabled={readOnly}

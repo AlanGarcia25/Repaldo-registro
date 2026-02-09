@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
 
+
 import Select from "./select";
 import Input from "./input";
 import Boton from "./boton";
@@ -218,9 +219,19 @@ function CardFor() {
         if (e.key !== "Enter") return;
         e.preventDefault();
 
-        if (cargando)
+        if (!datos.empleadoId || datos.empleadoId.toString().trim() === "") {
+            Swal.fire({
+                title: "Campo requerido",
+                text: "Por favor, ingresa un ID de empleado",
+                icon: "warning",
+                showConfirmButton: false,
+                timer: 2000
+            });
             return;
-        setCargando(true)
+        }
+
+        if (cargando) return;
+        setCargando(true);
 
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
@@ -229,43 +240,37 @@ function CardFor() {
             const empleado = await getDatosEmpleado(datos.empleadoId, { signal: controller.signal });
             clearTimeout(timeoutId);
 
-            if (!empleado) {
+            if (!empleado || Object.keys(empleado).length === 0) {
                 Swal.fire({
-                    title: "Error",
-                    text: "El empleado no existe",
+                    title: "No encontrado",
+                    text: "El empleado no existe en la base de datos",
                     icon: "error",
-                    timer: 3000
+                    timer: 3000,
+                    showConfirmButton: false,
                 });
-                window.location.reload
+                setDatos({ ...datos, empleadoId: "" });
                 return;
             }
+
             setDatos(empleado);
 
         } catch (error: any) {
-            if (error.name === 'AbortError') {
-                Swal.fire({
-                    title: "Timeout",
-                    text: "El servidor tardó demasiado en responder",
-                    icon: "warning",
-                    timer: 2000,
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                });
-            } else {
-                console.error("Error de conexión", error);
-                Swal.fire({
-                    title: "Error de conexion",
-                    text: "Fallo la conexion con el servidor",
-                    icon: "error",
-                    timer: 2000,
-                    showConfirmButton: false,
-                    timerProgressBar: true,
-                });
-            }
+            const isTimeout = error.name === 'AbortError' || error.code === 'ECONNABORTED';
+
+            Swal.fire({
+                title: isTimeout ? "Sin respuesta" : "Error de conexión",
+                text: isTimeout
+                    ? "La base de datos tardó demasiado en responder"
+                    : "No se pudo establecer conexión con el servidor",
+                icon: isTimeout ? "warning" : "error",
+                timer: 2500,
+                showConfirmButton: false
+            });
         } finally {
-            setCargando(false)
+            setCargando(false);
         }
     };
+
     ////
 
     const handleInputChange = (campo: keyof datosEmpleado, valor: any) => {
@@ -358,7 +363,11 @@ function CardFor() {
                             onChange={(val) => { handleInputChange('estadoCivil', val) }}
                         />
                         <Input
-                            nombre={"Lugar de nacimiento".length > 15 ? "Lugar nac" : "Lugar de nacimiento"}
+                            nombre={
+                                <div className="max-w[120px] truncate" >
+                                    Lugar de nacimiento
+                                </div>
+                            }
                             placeholder="Estado, Ciudad, Municipio"
                             tipo="text"
                             value={datos.lugarNacimiento}
@@ -371,9 +380,13 @@ function CardFor() {
                         />
 
                         {/* FILA AGRUPADA: FECHA, SEXO Y CP */}
-                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 items-end">
                             <Input
-                                nombre="Fecha de Nacimiento"
+                                nombre={
+                                    <div className="max-w[120px] truncate" >
+                                        Fecha de nacimiento
+                                    </div>
+                                }
                                 tipo="date"
                                 min={minFecha}
                                 max={maxFecha}
@@ -406,8 +419,8 @@ function CardFor() {
                             <label className="text-sm font-bold text-gray-700">Domicilio</label>
                             <textarea
                                 className="w-full border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none resize-none"
-                                placeholder="Ingrese el domicilio"
-                                value={datos.domicilio}
+                                placeholder="Ingrese su domicilio completo"
+                                value={datos.domicilio || ""}
                                 rows={2}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
                                 readOnly={false}
@@ -417,7 +430,7 @@ function CardFor() {
                         <div className="col-span-1 sm:col-span-2">
                             <Input
                                 nombre="Colonia"
-                                placeholder="Colonia"
+                                placeholder="Barrio/Colonia"
                                 tipo="text"
                                 value={datos.colonia}
                                 onChange={(val) => { handleInputChange('colonia', val) }}

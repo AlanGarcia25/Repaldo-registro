@@ -1,4 +1,4 @@
-// import Card from './components/card' ; 
+import Card from './components/card' ; 
 import Formulario from './Formulario';
 
 import { EmpleadoProvider } from './context/EmpleadoContext';
