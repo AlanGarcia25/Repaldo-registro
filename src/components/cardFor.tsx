@@ -384,7 +384,7 @@ function CardFor() {
                             <Input
                                 nombre={
                                     <div className="max-w[120px] truncate" >
-                                        Fecha de nacimiento
+                                        Lugar de nacimiento
                                     </div>
                                 }
                                 tipo="date"
