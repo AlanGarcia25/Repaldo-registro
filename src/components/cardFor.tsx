@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
 
+import dayjs from "dayjs";
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 import Select from "./select";
 import Input from "./input";
@@ -16,7 +20,7 @@ import { useSelectApi } from "../hooks/useSelectApi";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
-
+let instanciaSDKGlobal: any = null;
 
 function CardFor() {
     const { huellaBase64, datos, setDatos, setHuellaBase64, } = useEmpleado();
@@ -37,7 +41,6 @@ function CardFor() {
     ///// FECHA
     const hoy = new Date();
     const maxFecha = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
-
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
 
     const { options: empresasOptions } = useSelectApi(
@@ -47,19 +50,20 @@ function CardFor() {
 
     useEffect(() => {
         const cargarEmpleados = async () => {
-            const res = await api.get<datosEmpleado[]>( // ------  
-                "/agrosmart/ags_empleado/contrato"
-            );
-            setListaEmpleadosOriginal(res.data);
+            try {
+                const res = await api.get<datosEmpleado[]>(
+                    "/agrosmart/ags_empleado/contrato"//--------->
+                );
+                setListaEmpleadosOriginal(res.data);
+            } catch (error) {
+                console.error("Error cargando empleados:", error);
+            }
         };
         cargarEmpleados();
-    }, []);
+    }, []); // <--- DEBE TENER ESTO VACÍO
 
 
     /////////////////////////// INICIO CONST MODAL \\\\\\\\\\\\\\\\\\\\\\\\\\\
-    const cerrarModal = (delay = 2000) => {
-        setTimeout(() => setModalAbierto(false), delay);
-    };
 
     useEffect(() => {
         return () => {
@@ -73,6 +77,10 @@ function CardFor() {
         };
     }, []);
 
+    const cerrarModal = (delay = 2000) => {
+        setTimeout(() => setModalAbierto(false), delay);
+    };
+
     const detenerEscaneo = async () => {
         if (timeoutRef.current) {
             clearTimeout(timeoutRef.current);
@@ -80,28 +88,19 @@ function CardFor() {
         }
 
         escaneandoRef.current = false;
-        cerrarModal();
-
+        cerrarModal(1500);
         if (sdkRef.current) {
-            const sdkCopia = sdkRef.current;
-            sdkRef.current = null;
-
             try {
-                sdkCopia.onSamplesAcquired = null;
-                sdkCopia.onCommunicationFailed = null;
+                sdkRef.current.onSamplesAcquired = null;
+                sdkRef.current.onCommunicationFailed = null;
+                await sdkRef.current.stopAcquisition();
 
-                await Promise.race([
-                    sdkCopia.stopAcquisition(),
-                    new Promise((_, reject) => setTimeout(() => reject(new Error("Timeout")), 1500))
-                ]);
-
-                console.log("Conexión liberada con éxito.");
+                console.log("Sensor detenido, pero instancia mantenida (Singleton).");
             } catch (e) {
-                console.warn("El SDK no respondió, pero la memoria fue liberada.");
+                console.warn("Error al detener sensor (posiblemente ya estaba detenido).", e);
             }
         }
     };
-
     const manejarErrorHuella = (msg: string) => {
         setEstadoHuella("error");
         setMensajeHuella(msg);
@@ -117,13 +116,7 @@ function CardFor() {
 
         if (escaneandoRef.current) return;
 
-        if (sdkRef.current) {
-            try {
-                await sdkRef.current.stopAcquisition();
-            } catch (e) { }
-            sdkRef.current = null;
-        }
-
+        // Limpiamos estados previos
         setModalAbierto(true);
         setEstadoHuella("escaneando");
         setMensajeHuella(undefined);
@@ -139,11 +132,18 @@ function CardFor() {
             const Fingerprint = (window as any).Fingerprint;
             if (!Fingerprint) throw new Error("SDK no disponible");
 
-            const sdk = new Fingerprint.WebApi();
-            sdkRef.current = sdk;
+            // --- LÓGICA SINGLETON ---
+            // Si no existe la instancia, la creamos UNA SOLA VEZ
+            if (!instanciaSDKGlobal) {
+                instanciaSDKGlobal = new Fingerprint.WebApi();
+            }
+
+            // Asignamos la instancia global a nuestra referencia local del componente
+            sdkRef.current = instanciaSDKGlobal;
+            // ------------------------
 
             const devices = await Promise.race([
-                sdk.enumerateDevices(),
+                sdkRef.current.enumerateDevices(),
                 new Promise((_, reject) =>
                     setTimeout(() => reject(new Error("SERVICIO_BLOQUEADO")), 3500)
                 )
@@ -153,7 +153,11 @@ function CardFor() {
                 throw new Error("Conecte el lector");
             }
 
-            sdk.onSamplesAcquired = async (s: any) => {
+            // Limpiamos handlers anteriores por seguridad antes de asignar nuevos
+            sdkRef.current.onSamplesAcquired = null;
+            sdkRef.current.onCommunicationFailed = null;
+
+            sdkRef.current.onSamplesAcquired = async (s: any) => {
                 if (yaSeMostroBloqueo) return;
                 try {
                     const samples = typeof s.samples === "string" ? JSON.parse(s.samples) : s.samples;
@@ -169,18 +173,18 @@ function CardFor() {
                 }
             };
 
-            sdk.onCommunicationFailed = () => {
+            sdkRef.current.onCommunicationFailed = () => {
                 if (!yaSeMostroBloqueo) {
+                    detenerEscaneo();
                     manejarErrorHuella("Fallo de comunicación con el servicio local");
                 }
             };
 
-            await sdk.startAcquisition(Fingerprint.SampleFormat.PngImage, devices[0]);
+            // Iniciamos captura con la instancia persistente
+            await sdkRef.current.startAcquisition(Fingerprint.SampleFormat.PngImage, devices[0]);
 
         } catch (error: any) {
             if (timeoutRef.current) window.clearTimeout(timeoutRef.current);
-
-            sdkRef.current = null;
             escaneandoRef.current = false;
 
             if (error.message === "SERVICIO_BLOQUEADO") {
@@ -191,7 +195,6 @@ function CardFor() {
                     title: 'Lector Saturado',
                     text: 'El servicio ha superado el límite de conexiones permitido.',
                     icon: 'warning',
-                    showCancelButton: false,
                     confirmButtonText: 'Reiniciar Lector',
                     customClass: {
                         confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg',
@@ -381,10 +384,10 @@ function CardFor() {
 
                         {/* FILA AGRUPADA: FECHA, SEXO Y CP */}
                         <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 items-end">
-                            <Input
+                            {/* <Input
                                 nombre={
                                     <div className="max-w[120px] truncate" >
-                                        Lugar de nacimiento
+                                        Fecha de nacimiento
                                     </div>
                                 }
                                 tipo="date"
@@ -394,7 +397,34 @@ function CardFor() {
                                 onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
                                 onKeyDown={(e) => e.preventDefault()}
                                 readOnly={false}
-                            />
+                            /> */}
+
+                            {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <div className="flex flex-col py-2">
+                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
+                                    <DatePicker
+                                        format="  DD / MM / YYYY"
+                                        views={['year', 'month', 'day']}
+                                        maxDate={dayjs(maxFecha)}
+                                        minDate={dayjs(minFecha)}
+                                        value={datos.fechaNacimiento ? dayjs(datos.fechaNacimiento) : null}
+                                        onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
+                                        slotProps={{
+                                            textField: {
+                                                variant: "standard",
+                                                readOnly: true,
+                                                InputProps: {
+                                                    disableUnderline: true,
+                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </LocalizationProvider>
+                            {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
+
                             <Select
                                 nombreSelect={"Sexo"}
                                 options={OPCIONES_SEXO}
@@ -442,9 +472,7 @@ function CardFor() {
 
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
                 <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-6 bg-white">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">
-                        Biométricos
-                    </h1>
+                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">Biométricos</h1>
 
                     <div className="flex flex-col gap-6">
                         <div className="w-full">

@@ -19,6 +19,6 @@ const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: Se
             </select>
         </div>
     );
-};  
+};
 
 export default Select;

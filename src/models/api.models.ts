@@ -40,8 +40,6 @@ export interface InputProps {
   value?: string | number;
   readOnly?: boolean;
   estilos?: string;
-  min?: string;
-  max?: string;
   onChange: (value: string) => void;
   onBlur?: (value: string) => void;
   ref?: null;

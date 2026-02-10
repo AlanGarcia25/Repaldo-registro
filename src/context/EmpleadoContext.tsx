@@ -12,7 +12,7 @@ const valoresIniciales: datosEmpleado = {
   fechaNacimiento: '',
   domicilio: '',
   colonia: '',
-  codigoPostal: 0,
+  codigoPostal: '',
   lugarNacimiento: '',
   estadoCivil: '',
   tipoJornal: '',
