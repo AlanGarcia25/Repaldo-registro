@@ -20,6 +20,9 @@ export interface datosEmpleado {
   lugarNacimiento: string;
   estadoCivil: string;
   tipoJornal: string;
+  firmaBase64?:string;
+  huellaBase64?: string;
+  fechaIngreso: string
 }
 
 // USO PARA EL COMPONENTE "boton"

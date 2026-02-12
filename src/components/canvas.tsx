@@ -1,5 +1,5 @@
 import Swal from 'sweetalert2'
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";
@@ -9,13 +9,16 @@ import { useEmpleado } from "../context/EmpleadoContext";
 function Canvas() {
   const sigCanvas = useRef<SignatureCanvas>(null);
   const [estaVacio, setEstaVacio] = useState(true);
-
-  const { setUrlFirma } = useEmpleado();
+  const { setUrlFirma, setLimpiarCanvas } = useEmpleado();
 
   const handleClear = () => {
     sigCanvas.current?.clear();
     setEstaVacio(true);
   };
+
+  useEffect(() => {
+    setLimpiarCanvas(() => handleClear);
+  }, []);
 
   const guardarFirma = () => {
     if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
@@ -25,6 +28,7 @@ function Canvas() {
     const urlFirma = sigCanvas.current
       .getCanvas()
       .toDataURL("image/png");
+    console.log(urlFirma)
 
     setUrlFirma(urlFirma);
     Swal.fire({
@@ -60,7 +64,12 @@ function Canvas() {
 
         <Boton
           nombreBoton="Guardar firma"
-          onClick={guardarFirma}
+          onClick={() => {
+            guardarFirma()
+            setTimeout(() => {
+              handleClear();
+            }, 1000)
+          }}
           disabled={estaVacio ? true : false}
           color={estaVacio ? "bg-yellow-600/40 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-700"}
         />

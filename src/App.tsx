@@ -1,16 +1,14 @@
 import Card from './components/card';
-import Formulario from './Formulario';
 
-import { EmpleadoProvider } from './context/EmpleadoContext';
+import Formulario from './Formulario';
 
 function App() {
   return (
 
     <div className="@container">
-      <EmpleadoProvider>
-        {/* <Card /> */}
-        <Formulario />
-      </EmpleadoProvider>
+        <Card />
+        {/* <Formulario/> */}
+
     </div>
 
   )

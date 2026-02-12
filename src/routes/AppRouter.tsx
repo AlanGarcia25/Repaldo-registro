@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import App from '../App'; 
 import Formulario from '../Formulario';
 import NotFound from '../errors/notFound';
+import { EmpleadoProvider } from '../context/EmpleadoContext';
 
 interface Props {
   children: React.ReactNode;
@@ -24,7 +25,9 @@ export const AppRouter = () => {
         path="/formulario" 
         element={
           <ProtectedRoute>
-            <Formulario/>
+            <EmpleadoProvider>
+              <Formulario/>
+            </EmpleadoProvider>
           </ProtectedRoute>
           }/>
       <Route path="*" element={<NotFound/>} />

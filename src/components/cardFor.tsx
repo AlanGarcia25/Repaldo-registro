@@ -27,7 +27,7 @@ let instanciaSDKGlobal: any = null;
 // --------------------------------------- \\
 
 function CardFor() {
-    const { huellaBase64, datos, setDatos, setHuellaBase64, } = useEmpleado();
+    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa } = useEmpleado();
 
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>()
@@ -39,7 +39,6 @@ function CardFor() {
     const escaneandoRef = useRef(false);
     const sdkRef = useRef<any>(null);
 
-    const [, setIdEmpresaSel] = useState("");
     const [, setListaEmpleadosOriginal] = useState<datosEmpleado[]>([]);
 
     const hoy = new Date();
@@ -295,19 +294,43 @@ function CardFor() {
 
                     {/* PRIMERA PARTE DEL MENU IZQUIERDO   */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                        <Select
-                            nombreSelect={"Empresas"}
-                            options={empresasOptions}
-                            readOnly={false}
-                            onChange={(val) => setIdEmpresaSel(val)}
-                        />
-                        <Select
-                            nombreSelect={"Tipo jornal"}
-                            options={OPCIONES_TIPO_JORNAL}
-                            value={datos.tipoJornal || ""}
-                            readOnly={false}
-                            onChange={(val) => { handleInputChange('tipoJornal', val) }}
-                        />
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
+                            <Select
+                                nombreSelect={"Empresas"}
+                                options={empresasOptions}
+                                value={datosEmpresa}
+                                readOnly={false}
+                                onChange={setDatosEmpresa}
+                            />
+                            <Select
+                                nombreSelect={"Tipo jornal"}
+                                options={OPCIONES_TIPO_JORNAL}
+                                value={datos.tipoJornal || ""}
+                                readOnly={false}
+                                onChange={(val) => { handleInputChange('tipoJornal', val) }}
+                            />
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                                <div className="flex flex-col py-2">
+                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de ingreso</label>
+                                    <DatePicker
+                                        format="  DD / MM / YYYY"
+                                        views={['year', 'month', 'day']}
+                                        value={datos.fechaIngreso ? dayjs(datos.fechaIngreso) : null}
+                                        onChange={(val) => { handleInputChange('fechaIngreso', val) }}
+                                        slotProps={{
+                                            textField: {
+                                                variant: "standard",
+                                                readOnly: true,
+                                                InputProps: {
+                                                    disableUnderline: true,
+                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </LocalizationProvider>
+                        </div>
                         <Input
                             nombre="No. Empleado"
                             tipo="text"
@@ -383,7 +406,7 @@ function CardFor() {
                         />
 
                         {/* /// FILA AGRUPADA: FECHA, SEXO Y CP \\\ */}
-                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 items-end">
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
                             {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">

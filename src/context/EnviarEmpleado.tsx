@@ -4,7 +4,7 @@ import { api } from "../services/api.config";
 import { useEmpleado } from "../context/EmpleadoContext";
 
 function EnviarEmpleado() {
-    const { datos, huellaBase64, urlFirma, limpiarEmpleado } = useEmpleado();
+    const { datos, huellaBase64, urlFirma, limpiarEmpleado, datosEmpresa } = useEmpleado();
 
     const camposRequeridos = [
         datos.empleadoId,
@@ -17,6 +17,7 @@ function EnviarEmpleado() {
         datos.estadoCivil,
         datos.domicilio,
         datos.tipoJornal,
+        datosEmpresa
     ];
 
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
@@ -43,12 +44,13 @@ function EnviarEmpleado() {
 
         const payload = {
             ...datos,
+            empresaId: datosEmpresa,// VER SI SE ENVIA EMPRESA
             huellaBase64,
             urlFirma,
         };
 
         try {
-            await api.post("/agrosmart/ags_empleado/guardar", payload); // --------
+            await api.post("/agrosmart/ags_contrato/", payload); // --------
             Swal.fire({
                 title: "Envio exitoso",
                 text: "Formulario enviado con exito",
@@ -83,7 +85,8 @@ function EnviarEmpleado() {
                 onClick={handleEnviar}
                 className=
                 {`w-full py-2 px-4 rounded-md text-white transition 
-                ${deshabilitado ? "bg-green-600/50 cursor-not-allowed"
+                ${deshabilitado
+                        ? "bg-green-600/50 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 cursor-pointer"}`}>
                 Cargar documento
             </button>
