@@ -2,43 +2,46 @@ import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
 
 import dayjs from "dayjs";
+import 'dayjs/locale/es';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
-import Select from "./select";
 import Input from "./input";
 import Boton from "./boton";
-import Canvas from "./canvas";
 import Modal from "./modal";
-import EnviarEmpleado from "../context/EnviarEmpleado";
+import Canvas from "./canvas";
+import Select from "./select";
 
 import type { datosEmpleado } from "../models/api.models";
 
-import { useEmpleado } from "../context/EmpleadoContext";
 import { useSelectApi } from "../hooks/useSelectApi";
+import EnviarEmpleado from "../context/EnviarEmpleado";
+import { useEmpleado } from "../context/EmpleadoContext";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
+
+// ¡¡¡ INSTANCIA PARA USO DE SINGLETON !!! \\
 let instanciaSDKGlobal: any = null;
+// --------------------------------------- \\
 
 function CardFor() {
     const { huellaBase64, datos, setDatos, setHuellaBase64, } = useEmpleado();
 
-    const [modalAbierto, setModalAbierto] = useState(false);
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
-    const [mensajeHuella, setMensajeHuella] = useState<string>();
-    const [imagenHuella, setImagenHuella] = useState('')
+    const [mensajeHuella, setMensajeHuella] = useState<string>()
+    const [imagenHuella, setImagenHuella] = useState('');
+    const [modalAbierto, setModalAbierto] = useState(false);
     const [cargando, setCargando] = useState(false)
 
-    const sdkRef = useRef<any>(null);
     const timeoutRef = useRef<number | null>(null);
     const escaneandoRef = useRef(false);
+    const sdkRef = useRef<any>(null);
 
     const [, setIdEmpresaSel] = useState("");
     const [, setListaEmpleadosOriginal] = useState<datosEmpleado[]>([]);
 
-    ///// FECHA
     const hoy = new Date();
     const maxFecha = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
@@ -48,11 +51,12 @@ function CardFor() {
         (emp) => ({ value: emp.empresaId, label: emp.empresaNombre })
     );
 
+    /// OBTENER EMPLEADOS \\\
     useEffect(() => {
         const cargarEmpleados = async () => {
             try {
                 const res = await api.get<datosEmpleado[]>(
-                    "/agrosmart/ags_empleado/contrato"//--------->
+                    "/agrosmart/ags_empleado/contrato"//--------------
                 );
                 setListaEmpleadosOriginal(res.data);
             } catch (error) {
@@ -60,11 +64,10 @@ function CardFor() {
             }
         };
         cargarEmpleados();
-    }, []); // <--- DEBE TENER ESTO VACÍO
+    }, []);
+    ///
 
-
-    /////////////////////////// INICIO CONST MODAL \\\\\\\\\\\\\\\\\\\\\\\\\\\
-
+    /////////////////////////// INICIO SCRIPT MODAL \\\\\\\\\\\\\\\\\\\\\\\\\\\
     useEffect(() => {
         return () => {
             if (sdkRef.current) {
@@ -108,7 +111,7 @@ function CardFor() {
     };
     /////////////////////////// 
 
-    ///////////////////////////////////////// INICIO HANDLE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    ///////////////////////////////////////// INICIO HANDLE-OPTIONS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
     //// ESCANEO Y MANEJODE HUELLA
     const handleCapturarHuella = async () => {
@@ -116,7 +119,6 @@ function CardFor() {
 
         if (escaneandoRef.current) return;
 
-        // Limpiamos estados previos
         setModalAbierto(true);
         setEstadoHuella("escaneando");
         setMensajeHuella(undefined);
@@ -133,12 +135,9 @@ function CardFor() {
             if (!Fingerprint) throw new Error("SDK no disponible");
 
             // --- LÓGICA SINGLETON ---
-            // Si no existe la instancia, la creamos UNA SOLA VEZ
             if (!instanciaSDKGlobal) {
                 instanciaSDKGlobal = new Fingerprint.WebApi();
             }
-
-            // Asignamos la instancia global a nuestra referencia local del componente
             sdkRef.current = instanciaSDKGlobal;
             // ------------------------
 
@@ -153,7 +152,6 @@ function CardFor() {
                 throw new Error("Conecte el lector");
             }
 
-            // Limpiamos handlers anteriores por seguridad antes de asignar nuevos
             sdkRef.current.onSamplesAcquired = null;
             sdkRef.current.onCommunicationFailed = null;
 
@@ -180,7 +178,6 @@ function CardFor() {
                 }
             };
 
-            // Iniciamos captura con la instancia persistente
             await sdkRef.current.startAcquisition(Fingerprint.SampleFormat.PngImage, devices[0]);
 
         } catch (error: any) {
@@ -273,15 +270,18 @@ function CardFor() {
             setCargando(false);
         }
     };
-
     ////
 
+
+    // INGRESAR LOS VALORES A LOS INPUT
     const handleInputChange = (campo: keyof datosEmpleado, valor: any) => {
         setDatos((prev) => ({
             ...prev,
             [campo]: valor,
         }));
     };
+    //
+
     ///////////////////////////////////////// 
 
 
@@ -375,32 +375,17 @@ function CardFor() {
                             tipo="text"
                             value={datos.lugarNacimiento}
                             onChange={(val) => {
-                                if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]*$/.test(val)) {
+                                if (/^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s,.]*$/.test(val)) {
                                     handleInputChange('lugarNacimiento', val)
                                 }
                             }}
                             readOnly={false}
                         />
 
-                        {/* FILA AGRUPADA: FECHA, SEXO Y CP */}
+                        {/* /// FILA AGRUPADA: FECHA, SEXO Y CP \\\ */}
                         <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-4 items-end">
-                            {/* <Input
-                                nombre={
-                                    <div className="max-w[120px] truncate" >
-                                        Fecha de nacimiento
-                                    </div>
-                                }
-                                tipo="date"
-                                min={minFecha}
-                                max={maxFecha}
-                                value={datos.fechaNacimiento}
-                                onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
-                                onKeyDown={(e) => e.preventDefault()}
-                                readOnly={false}
-                            /> */}
-
                             {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
-                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
                                     <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
                                     <DatePicker
@@ -434,6 +419,7 @@ function CardFor() {
                             />
                             <Input
                                 nombre="Código Postal"
+                                placeholder="Ej.43200"
                                 tipo="number"
                                 value={datos.codigoPostal}
                                 onChange={(val) => {
@@ -453,10 +439,9 @@ function CardFor() {
                                 value={datos.domicilio || ""}
                                 rows={2}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
-                                readOnly={false}
-                            ></textarea>
+                                readOnly={false}>
+                            </textarea>
                         </div>
-
                         <div className="col-span-1 sm:col-span-2">
                             <Input
                                 nombre="Colonia"
@@ -473,7 +458,6 @@ function CardFor() {
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
                 <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-6 bg-white">
                     <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">Biométricos</h1>
-
                     <div className="flex flex-col gap-6">
                         <div className="w-full">
                             <Boton
@@ -510,7 +494,6 @@ function CardFor() {
                                 <Canvas />
                             </div>
                         </div>
-
                         <div className="mt-2 w-full">
                             <EnviarEmpleado />
                         </div>

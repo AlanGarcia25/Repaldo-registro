@@ -10,7 +10,9 @@ function NotFound() {
                     </h2>
                     <p className="text-2xl font-semibold md:text-3xl">Pagina no encontrada</p>
                     <p className="mt-4 mb-8 dark:text-gray-600">Para regresar al inicio presiona el boton de abajo.</p>
-                    <Link rel="noopener noreferrer" to="/" className="px-8 py-3 font-semibold cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md">Regresar a la pagina de inicio</Link>
+                    <Link rel="noopener noreferrer" to="/" className="px-8 py-3 font-semibold cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md">
+                        Regresar a la pagina de inicio
+                    </Link>
                 </div>
             </div>
         </section>

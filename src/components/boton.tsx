@@ -12,7 +12,7 @@ function Boton({ nombreBoton, color, disabled, onClick }: BotonProps) {
                 {nombreBoton}
             </button>
         </div>
-    )
-}
+    );
+};
 
 export default Boton;

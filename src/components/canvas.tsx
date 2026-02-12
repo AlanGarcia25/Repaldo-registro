@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
 import Swal from 'sweetalert2'
+import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";

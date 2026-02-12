@@ -4,7 +4,7 @@ export interface nombreEmpresas {
   empresaNombre: string;
 }
 
-// USO PARA "useTokenData"
+// USO PARA "empleados"
 export interface datosEmpleado {
   empleadoId: string;
   empleadoNombre: string;
@@ -18,10 +18,8 @@ export interface datosEmpleado {
   colonia: string;
   codigoPostal: number | string;
   lugarNacimiento: string;
-  // NO SE USA DE MOMENTO
   estadoCivil: string;
   tipoJornal: string;
-  // NO SE USA DE MOMENTO
 }
 
 // USO PARA EL COMPONENTE "boton"
