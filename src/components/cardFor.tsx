@@ -47,7 +47,10 @@ function CardFor() {
 
     const { options: empresasOptions } = useSelectApi(
         getNombreEmpresas,
-        (emp) => ({ value: emp.empresaId, label: emp.empresaNombre })
+        (emp) => ({
+            value: emp.empresaId,
+            label: emp.empresaNombre
+        })
     );
 
     /// OBTENER EMPLEADOS \\\
@@ -96,8 +99,6 @@ function CardFor() {
                 sdkRef.current.onSamplesAcquired = null;
                 sdkRef.current.onCommunicationFailed = null;
                 await sdkRef.current.stopAcquisition();
-
-                console.log("Sensor detenido, pero instancia mantenida (Singleton).");
             } catch (e) {
                 console.warn("Error al detener sensor (posiblemente ya estaba detenido).", e);
             }
@@ -211,7 +212,7 @@ function CardFor() {
             }
         }
     };
-    ////
+    ////    
 
     //// BUSCAR POR ID Y TECLA 'ENTER'
     const handleEmpleadoKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -236,7 +237,7 @@ function CardFor() {
         const timeoutId = setTimeout(() => controller.abort(), 5000);
 
         try {
-            const empleado = await getDatosEmpleado(datos.empleadoId, { signal: controller.signal });
+            const empleado = await getDatosEmpleado(`${datos.empleadoId}/${datosEmpresa}`, { signal: controller.signal });
             clearTimeout(timeoutId);
 
             if (!empleado || Object.keys(empleado).length === 0) {
@@ -294,7 +295,7 @@ function CardFor() {
 
                     {/* PRIMERA PARTE DEL MENU IZQUIERDO   */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
-                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 items-end">
                             <Select
                                 nombreSelect={"Empresas"}
                                 options={empresasOptions}
@@ -315,6 +316,8 @@ function CardFor() {
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
+                                        maxDate={dayjs(hoy)}
+                                        minDate={dayjs(minFecha)}
                                         value={datos.fechaIngreso ? dayjs(datos.fechaIngreso) : null}
                                         onChange={(val) => { handleInputChange('fechaIngreso', val) }}
                                         slotProps={{
@@ -330,16 +333,46 @@ function CardFor() {
                                     />
                                 </div>
                             </LocalizationProvider>
+                            <Input
+                                nombre="No. Empleado"
+                                tipo="text"
+                                placeholder={"Ingrese el ID del empleado"}
+                                value={datos.empleadoId}
+                                onChange={(val) => handleInputChange('empleadoId', val)}
+                                readOnly={false}
+                                onKeyDown={handleEmpleadoKeyDown}
+                            />
+                            <Select
+                                nombreSelect={"Sexo"}
+                                options={OPCIONES_SEXO}
+                                value={datos.sexo}
+                                readOnly={false}
+                                onChange={(val) => handleInputChange("sexo", val)}
+                            />
+                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
+                                <div className="flex flex-col py-2">
+                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
+                                    <DatePicker
+                                        format="  DD / MM / YYYY"
+                                        views={['year', 'month', 'day']}
+                                        maxDate={dayjs(maxFecha)}
+                                        minDate={dayjs(minFecha)}
+                                        value={datos.fechaNacimiento ? dayjs(datos.fechaNacimiento) : null}
+                                        onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
+                                        slotProps={{
+                                            textField: {
+                                                variant: "standard",
+                                                readOnly: true,
+                                                InputProps: {
+                                                    disableUnderline: true,
+                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                },
+                                            },
+                                        }}
+                                    />
+                                </div>
+                            </LocalizationProvider>
                         </div>
-                        <Input
-                            nombre="No. Empleado"
-                            tipo="text"
-                            placeholder={"Ingrese el ID del empleado"}
-                            value={datos.empleadoId}
-                            onChange={(val) => handleInputChange('empleadoId', val)}
-                            readOnly={false}
-                            onKeyDown={handleEmpleadoKeyDown}
-                        />
                         <Input
                             nombre="Nombre"
                             tipo="text"
@@ -361,10 +394,6 @@ function CardFor() {
                             onChange={(val) => handleInputChange('apellidoMaterno', val)}
                             readOnly={true}
                         />
-                    </div>
-
-                    {/* SEGUNA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-5">
                         <Input
                             nombre="CURP"
                             placeholder="CURP"
@@ -373,6 +402,10 @@ function CardFor() {
                             onChange={(val) => handleInputChange('empleadoCURP', val)}
                             readOnly={true}
                         />
+                    </div>
+
+                    {/* SEGUNA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-5">
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
@@ -404,56 +437,18 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
-
-                        {/* /// FILA AGRUPADA: FECHA, SEXO Y CP \\\ */}
-                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 gap-x-4 items-end">
-                            {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
-                            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
-                                <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
-                                    <DatePicker
-                                        format="  DD / MM / YYYY"
-                                        views={['year', 'month', 'day']}
-                                        maxDate={dayjs(maxFecha)}
-                                        minDate={dayjs(minFecha)}
-                                        value={datos.fechaNacimiento ? dayjs(datos.fechaNacimiento) : null}
-                                        onChange={(val) => { handleInputChange('fechaNacimiento', val) }}
-                                        slotProps={{
-                                            textField: {
-                                                variant: "standard",
-                                                readOnly: true,
-                                                InputProps: {
-                                                    disableUnderline: true,
-                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
-                                                },
-                                            },
-                                        }}
-                                    />
-                                </div>
-                            </LocalizationProvider>
-                            {/* ////////////////////// INICIO DE CALENDARIO \\\\\\\\\\\\\\\\\\\\\\\ */}
-
-                            <Select
-                                nombreSelect={"Sexo"}
-                                options={OPCIONES_SEXO}
-                                value={datos.sexo}
-                                readOnly={false}
-                                onChange={(val) => handleInputChange("sexo", val)}
-                            />
-                            <Input
-                                nombre="Código Postal"
-                                placeholder="Ej.43200"
-                                tipo="number"
-                                value={datos.codigoPostal}
-                                onChange={(val) => {
-                                    if (/^\d{0,5}$/.test(val)) {
-                                        handleInputChange('codigoPostal', val)
-                                    }
-                                }}
-                                readOnly={false}
-                            />
-                        </div>
-
+                        <Input
+                            nombre="Código Postal"
+                            placeholder="Ej.43200"
+                            tipo="number"
+                            value={datos.codigoPostal}
+                            onChange={(val) => {
+                                if (/^\d{0,5}$/.test(val)) {
+                                    handleInputChange('codigoPostal', val)
+                                }
+                            }}
+                            readOnly={false}
+                        />
                         <div className="col-span-1 sm:col-span-2 flex flex-col gap-2 w-full mt-1">
                             <label className="text-sm font-bold text-gray-700">Domicilio</label>
                             <textarea
@@ -522,14 +517,14 @@ function CardFor() {
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
             <Modal
                 abierto={modalAbierto}
                 estado={estadoHuella}
                 mensaje={mensajeHuella}
                 onClose={() => setModalAbierto(false)}
             />
-        </div>
+        </div >
     );
 }
 

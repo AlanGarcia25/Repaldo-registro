@@ -28,7 +28,6 @@ const Card = () => {
         }
         try {
             const credenciales = { Email: email, Password: password };
-            console.log(JSON.stringify(credenciales, null, 2))
             const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales, { timeout: 5000 }); // --------
             localStorage.setItem('token', response.data.token);
             localStorage.setItem("auth", "true");

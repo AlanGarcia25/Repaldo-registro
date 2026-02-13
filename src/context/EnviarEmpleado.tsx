@@ -1,7 +1,7 @@
-import Swal from 'sweetalert2'
-
+import Swal from 'sweetalert2';
 import { api } from "../services/api.config";
 import { useEmpleado } from "../context/EmpleadoContext";
+import axios from "axios";
 
 function EnviarEmpleado() {
     const { datos, huellaBase64, urlFirma, limpiarEmpleado, datosEmpresa } = useEmpleado();
@@ -10,6 +10,7 @@ function EnviarEmpleado() {
         datos.empleadoId,
         datos.empleadoNombre,
         datos.apellidoPaterno,
+        datos.apellidoMaterno,
         datos.empleadoCURP,
         datos.empleadoRFC,
         datos.fechaNacimiento,
@@ -21,60 +22,75 @@ function EnviarEmpleado() {
     ];
 
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
-
-    const deshabilitado =
-        hayCamposVacios || !huellaBase64 || !urlFirma;
+    const deshabilitado = hayCamposVacios || !huellaBase64 || !urlFirma;
 
     const handleEnviar = async () => {
         if (deshabilitado) {
             Swal.fire({
                 title: "Advertencia",
-                text: "Ningun campo debe de estar vacio",
+                text: "Por favor, complete todos los campos, incluída la empresa y los biométricos.",
                 icon: "warning",
                 timer: 2500,
                 showConfirmButton: false,
-                timerProgressBar: true,
-                allowOutsideClick: false,
-                customClass: {
-                    timerProgressBar: '!h-2 m-px'
-                }
-            })
+            });
             return;
         }
 
-        const payload = {
-            ...datos,
-            empresaId: datosEmpresa,// VER SI SE ENVIA EMPRESA
-            huellaBase64,
-            urlFirma,
-        };
-
         try {
-            await api.post("/agrosmart/ags_contrato/", payload); // --------
+            const payload = {
+                ...datos,
+                huellaBase64,
+                urlFirma,
+            };
+
+            const ruta = `agrosmart/ags_contrato/`;
+
+            const response = await api.post(ruta, payload, {
+                responseType: 'blob',
+            });
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+
+            link.setAttribute('download', `Contrato_${datos.empleadoId}.docx`);
+
+            document.body.appendChild(link);
+            link.click();
+
+            link.parentNode?.removeChild(link);
+            window.URL.revokeObjectURL(url);
+
             Swal.fire({
-                title: "Envio exitoso",
-                text: "Formulario enviado con exito",
+                title: "Generación exitosa",
+                text: "El contrato se ha descargado correctamente",
                 icon: "success",
                 timer: 2000,
                 showConfirmButton: false,
-                timerProgressBar: true,
-                allowOutsideClick: false
             }).then(() => {
-                console.log(JSON.stringify(payload))//////////////////////// BORRAR 
-                limpiarEmpleado()
-            })
-        } catch (error) {
-            console.error(error);
+                limpiarEmpleado();
+            });
+
+        } catch (error: unknown) {
+            console.error("Error al obtener contrato:", error);
+
+            let mensaje = "No se pudo generar el documento Word";
+
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
+                } else if (error.response?.status === 404) {
+                    mensaje = "No se encontró el recurso. Revisa los IDs.";
+                }
+            }
+
             Swal.fire({
                 title: "Error",
-                text: "No se pudo enviar los datos",
+                text: mensaje,
                 icon: "error",
                 timer: 3000,
                 showConfirmButton: false,
-                timerProgressBar: true,
-            }).then(() => {
-                limpiarEmpleado()
-            })
+            });
         }
     };
 
@@ -83,12 +99,11 @@ function EnviarEmpleado() {
             <button
                 type="button"
                 onClick={handleEnviar}
-                className=
-                {`w-full py-2 px-4 rounded-md text-white transition 
+                className={`w-full py-2 px-4 rounded-md text-white transition 
                 ${deshabilitado
                         ? "bg-green-600/50 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700 cursor-pointer"}`}>
-                Cargar documento
+                        : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`}>
+                Descargar Contrato
             </button>
         </div>
     );

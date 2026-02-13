@@ -28,7 +28,6 @@ function Canvas() {
     const urlFirma = sigCanvas.current
       .getCanvas()
       .toDataURL("image/png");
-    console.log(urlFirma)
 
     setUrlFirma(urlFirma);
     Swal.fire({

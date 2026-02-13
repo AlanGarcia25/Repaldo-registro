@@ -16,7 +16,7 @@ export interface datosEmpleado {
   fechaNacimiento: string | number;
   domicilio: string;
   colonia: string;
-  codigoPostal: number | string;
+  codigoPostal: number ;
   lugarNacimiento: string;
   estadoCivil: string;
   tipoJornal: string;

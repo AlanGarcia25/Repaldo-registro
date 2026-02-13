@@ -5,10 +5,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ nombre = "", tipo = "text", placeholder = "", value, onChange, onBlur, readOnly = false, onKeyDown }, ref) => {
     return (
       <div className="flex flex-col align-center py-2">
-        <label className="text-sm font-bold text-gray-700">
-          {nombre}
-        </label>
-
+        <label className="text-sm font-bold text-gray-700"> {nombre} </label>
         <input
           ref={ref}
           className={`${readOnly
