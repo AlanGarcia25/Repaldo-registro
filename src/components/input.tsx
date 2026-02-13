@@ -1,32 +1,30 @@
-interface InputProps {
-    nombre: string;
-    tipo: string;
-    placeholder: string;
-    value?: string | number;
-    // ver como poner de cuando yo lo requiera "defaultValue"
-    onChange: (value: string) => void;
-    onBlur?: (value: string) => void; 
-}
+import { forwardRef } from "react";
+import type { InputProps } from "../models/api.models";
 
-function Input({ tipo = "text", placeholder = "", value, onChange, onBlur }: InputProps) {
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ nombre = "", tipo = "text", placeholder = "", value, onChange, onBlur, readOnly = false, onKeyDown }, ref) => {
     return (
-
-        <div className={`flex flex-col align-center gap-4 pb-3 pt-3`}>
-            
-            <input
-                className="w-full min-w-0 border-b-[.1px] border-black p-1.5 focus:outline-none font-sans bg-transparent focus:border-blue-700 focus:outline-hidde"
-                type={tipo}
-                placeholder={placeholder}
-                value={value ?? ""} 
-                // corregir value={value ?? ""}
-                required
-                onChange={(e) => onChange(e.target.value)}
-                onBlur={(e) => onBlur && onBlur(e.target.value)} 
-            />
-
-        </div>
-
-    )
-}
+      <div className="flex flex-col align-center py-2">
+        <label className="text-sm font-bold text-gray-700"> {nombre} </label>
+        <input
+          ref={ref}
+          className={`${readOnly
+            ? "cursor-not-allowed text-gray-600"
+            : "focus:border-blue-700 bg-transparent"} 
+            truncate w-full min-w-0 border-b-[.1px] border-black p-1.5 focus:outline-none font-sans placeholder:italic`}
+          type={tipo}
+          placeholder={readOnly
+            ? "Datos del sistema"
+            : placeholder}
+          value={value ?? ""}
+          readOnly={readOnly}
+          onChange={(e) => onChange(e.target.value)}
+          onBlur={(e) => onBlur && onBlur(e.target.value)}
+          onKeyDown={onKeyDown}
+        />
+      </div>
+    );
+  }
+);
 
 export default Input;

@@ -1,22 +1,15 @@
-interface SelectProps {
-    nombreSelect: string;
-    options: { value: string | number; label: string }[];
-    value?: string | number; 
-    onChange: (val: string) => void;
-}
+import type { SelectProps } from "../models/api.models";
 
-const Select = ({ nombreSelect, options, value, onChange }: SelectProps) => {
+const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: SelectProps) => {
     return (
-        <div className="flex flex-col gap-2 w-full">
-            <label className="text-sm font-bold ">{nombreSelect}</label>
+        <div className="flex flex-col align-center py-2">
+            <label className="text-sm font-bold text-gray-700">{nombreSelect}</label>
             <select
-                className="border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none"
-                value={value || ""} 
-                // cambiar a value={value || ""}
+                className="italic border-b-[.1px] w-full min-w-0 p-1.5 border-black font-sans bg-transparent focus:border-blue-700 outline-none"
+                value={value || ""}
                 onChange={(e) => onChange(e.target.value)}
-            >
-                <option value="" disabled>Seleccione una opción</option>
-                
+                disabled={readOnly}>
+                <option value="" disabled hidden>Seleccione una opción</option>
                 {options.map((opt) => (
                     <option key={opt.value} value={opt.value}>
                         {opt.label}
