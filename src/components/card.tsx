@@ -39,12 +39,12 @@ const Card = () => {
                 timer: 2000,
                 showConfirmButton: false,
                 timerProgressBar: true,
-                // RECTIFICAR QUE LOS ESTILOS SE VEA DE MANERA CORRECTA
                 toast: true,
                 position: "top-end",
-                background: '#EBE6E6',
-                color: '#000'
-                //
+                color: '#000',
+                customClass: {
+                    popup:'!border-2 !border-black'
+                }
             })
             setEmail('')
             setPassword('')
@@ -97,6 +97,3 @@ const Card = () => {
 }
 
 export default Card
-
-// cenriquez@agrocir.com
-// ag2026AGR.

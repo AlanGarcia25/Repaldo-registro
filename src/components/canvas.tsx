@@ -70,7 +70,9 @@ function Canvas() {
             }, 1000)
           }}
           disabled={estaVacio ? true : false}
-          color={estaVacio ? "bg-yellow-600/40 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-700"}
+          color={estaVacio
+            ? "bg-yellow-600/40 cursor-not-allowed"
+            : "bg-yellow-600 hover:bg-yellow-700"}
         />
       </div>
     </div>

@@ -284,10 +284,9 @@ function CardFor() {
 
     ///////////////////////////////////////// 
 
-
     return (
         <div className="p-3">
-            <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full">
+            <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full select-none">
 
                 {/* ////////////////////////////////////////////////////MENU IZQUIERDO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
                 <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg">
@@ -338,7 +337,11 @@ function CardFor() {
                                 tipo="text"
                                 placeholder={"Ingrese el ID del empleado"}
                                 value={datos.empleadoId}
-                                onChange={(val) => handleInputChange('empleadoId', val)}
+                                onChange={(val) => {
+                                    if (/^\d{0,10}$/.test(val)) {
+                                        handleInputChange('empleadoId', val)
+                                    }
+                                }}
                                 readOnly={false}
                                 onKeyDown={handleEmpleadoKeyDown}
                             />
@@ -423,11 +426,11 @@ function CardFor() {
                         />
                         <Input
                             nombre={
-                                <div className="max-w[120px] truncate" >
+                                <div className="max-w[150px] truncate" >
                                     Lugar de nacimiento
                                 </div>
                             }
-                            placeholder="Estado, Ciudad, Municipio"
+                            placeholder="Estado"
                             tipo="text"
                             value={datos.lugarNacimiento}
                             onChange={(val) => {
