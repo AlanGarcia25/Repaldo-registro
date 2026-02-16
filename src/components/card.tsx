@@ -95,6 +95,3 @@ const Card = () => {
 }
 
 export default Card
-
-// cenriquez@agrocir.com
-// ag2026AGR.
