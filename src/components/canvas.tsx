@@ -28,7 +28,6 @@ function Canvas() {
     const urlFirma = sigCanvas.current
       .getCanvas()
       .toDataURL("image/png");
-      console.log(urlFirma);
 
     setUrlFirma(urlFirma);
     Swal.fire({
@@ -47,7 +46,7 @@ function Canvas() {
       <div className="border border-gray-800 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35  lg:w-full"}}
+          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full"}}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
           minWidth={3.3}

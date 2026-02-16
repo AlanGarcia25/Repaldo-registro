@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
 
-import dayjs from "dayjs";
 import 'dayjs/locale/es';
+import dayjs from "dayjs";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -272,7 +272,6 @@ function CardFor() {
     };
     ////
 
-
     // INGRESAR LOS VALORES A LOS INPUT
     const handleInputChange = (campo: keyof datosEmpleado, valor: any) => {
         setDatos((prev) => ({
@@ -378,6 +377,7 @@ function CardFor() {
                         </div>
                         <Input
                             nombre="Nombre"
+                            placeholder="Ingrese su nombre"
                             tipo="text"
                             value={datos.empleadoNombre}
                             onChange={(val) => handleInputChange('empleadoNombre', val)}
@@ -385,6 +385,7 @@ function CardFor() {
                         />
                         <Input
                             nombre="Apellido Paterno"
+                            placeholder="Ingrese su Apellido Paterno"
                             tipo="text"
                             value={datos.apellidoPaterno}
                             onChange={(val) => handleInputChange('apellidoPaterno', val)}
@@ -392,6 +393,7 @@ function CardFor() {
                         />
                         <Input
                             nombre="Apellido Materno"
+                            placeholder="Ingrese su Apellido Materno"
                             tipo="text"
                             value={datos.apellidoMaterno}
                             onChange={(val) => handleInputChange('apellidoMaterno', val)}

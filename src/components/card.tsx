@@ -3,9 +3,9 @@ import { useNavigate } from "react-router-dom"
 import React, { useState } from "react"
 import Swal from 'sweetalert2';
 
+import axios from "axios"
 import Input from "./input"
 import Boton from "./boton"
-import axios from "axios"
 
 const Card = () => {
     const navigate = useNavigate();

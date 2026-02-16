@@ -1,4 +1,4 @@
-import { type SelectOption } from "../hooks/useSelectApi";
+import type { SelectOption } from "../hooks/useSelectApi";
 
 // TIPO JORNAL
 export const OPCIONES_TIPO_JORNAL: SelectOption[] = [
