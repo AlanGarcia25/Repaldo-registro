@@ -1,6 +1,6 @@
-import Swal from 'sweetalert2';
-import { api } from "../services/api.config";
 import { useEmpleado } from "../context/EmpleadoContext";
+import { api } from "../services/api.config";
+import Swal from 'sweetalert2';
 import axios from "axios";
 
 function EnviarEmpleado() {
@@ -79,6 +79,9 @@ function EnviarEmpleado() {
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
                     mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                    return Promise.reject(error)
                 } else if (error.response?.status === 404) {
                     mensaje = "No se encontró el recurso. Revisa los IDs.";
                 }

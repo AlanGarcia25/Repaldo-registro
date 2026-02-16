@@ -1,12 +1,7 @@
 import React, { useEffect } from "react";
 import Swal from "sweetalert2";
 
-interface ModalHuellaProps {
-    abierto: boolean;
-    estado: "escaneando" | "ok" | "error";
-    mensaje?: string;
-    onClose: () => void;
-}
+import type {ModalHuellaProps} from '../models/api.models'
 
 const Modal: React.FC<ModalHuellaProps> = ({ abierto, estado, mensaje, onClose }) => {
 

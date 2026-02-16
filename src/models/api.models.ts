@@ -72,3 +72,11 @@ export interface Token {
   token: string;
   fechaExpiracion: Date;
 }
+
+// USO EN MODAL.TSX
+export interface ModalHuellaProps {
+    abierto: boolean;
+    estado: "escaneando" | "ok" | "error";
+    mensaje?: string;
+    onClose: () => void;
+}

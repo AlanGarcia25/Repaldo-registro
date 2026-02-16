@@ -1,12 +1,11 @@
-import Swal from 'sweetalert2';
-import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../services/api.config";
+import { useNavigate } from "react-router-dom"
+import React, { useState } from "react"
+import Swal from 'sweetalert2';
 
 import Input from "./input"
 import Boton from "./boton"
 import axios from "axios"
-
 
 const Card = () => {
     const navigate = useNavigate();
@@ -43,7 +42,7 @@ const Card = () => {
                 position: "top-end",
                 color: '#000',
                 customClass: {
-                    popup:'!border-2 !border-black'
+                    popup: '!border-2 !border-black'
                 }
             })
             setEmail('')
@@ -66,10 +65,9 @@ const Card = () => {
         }
     };
 
-
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-full max-w-md shadow-xl/30 ring-gray-200/50 border border-gray-200 rounded-lg">
+            <div className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border border-gray-200 rounded-lg">
                 <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
