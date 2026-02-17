@@ -8,7 +8,8 @@ const Select = ({ nombreSelect, options, value, onChange, readOnly = false }: Se
                 className="italic border-b-[.1px] w-full min-w-0 p-1.5 border-black font-sans bg-transparent focus:border-blue-700 outline-none"
                 value={value || ""}
                 onChange={(e) => onChange(e.target.value)}
-                disabled={readOnly}>
+                disabled={readOnly}
+            >
                 <option value="" disabled hidden>Seleccione una opción</option>
                 {options.map((opt) => (
                     <option key={opt.value} value={opt.value}>

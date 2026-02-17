@@ -21,7 +21,6 @@ import { useEmpleado } from "../context/EmpleadoContext";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
-
 // ¡¡¡ INSTANCIA PARA USO DE SINGLETON !!! \\
 let instanciaSDKGlobal: any = null;
 // --------------------------------------- \\
@@ -430,8 +429,7 @@ function CardFor() {
                             nombre={
                                 <div className="max-w[150px] truncate" >
                                     Lugar de nacimiento
-                                </div>
-                            }
+                                </div>}
                             placeholder="Estado"
                             tipo="text"
                             value={datos.lugarNacimiento}
@@ -500,13 +498,11 @@ function CardFor() {
                                     <h1 className="text-xl font-bold text-gray-800">¡Captura exitosa!</h1>
                                     <p className="text-gray-500 text-sm">La huella capturada es la siguiente</p>
                                 </div>
-
                                 <div className="w-32 h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
                                     <img
                                         className="w-full h-full object-contain"
                                         src={imagenHuella}
-                                        alt="Huella"
-                                    />
+                                        alt="Huella" />
                                 </div>
                             </div>
                         )}

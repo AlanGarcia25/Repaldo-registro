@@ -7,7 +7,8 @@ function Boton({ nombreBoton, color, disabled, onClick }: BotonProps) {
                 className={`w-full py-2 px-4 rounded-md ${color} text-white`}
                 onClick={onClick}
                 disabled={disabled}
-                type="submit">
+                type="submit"
+            >
                 {nombreBoton}
             </button>
         </div>

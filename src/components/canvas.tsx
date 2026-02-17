@@ -7,9 +7,9 @@ import Boton from "./boton";
 import { useEmpleado } from "../context/EmpleadoContext";
 
 function Canvas() {
-  const sigCanvas = useRef<SignatureCanvas>(null);
-  const [estaVacio, setEstaVacio] = useState(true);
   const { setUrlFirma, setLimpiarCanvas } = useEmpleado();
+  const [estaVacio, setEstaVacio] = useState(true);
+  const sigCanvas = useRef<SignatureCanvas>(null);
 
   const handleClear = () => {
     sigCanvas.current?.clear();
@@ -25,9 +25,7 @@ function Canvas() {
       return;
     }
 
-    const urlFirma = sigCanvas.current
-      .getCanvas()
-      .toDataURL("image/png");
+    const urlFirma = sigCanvas.current.getCanvas().toDataURL("image/png");
 
     setUrlFirma(urlFirma);
     Swal.fire({
@@ -46,7 +44,7 @@ function Canvas() {
       <div className="border border-gray-800 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full"}}
+          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full" }}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
           minWidth={3.3}

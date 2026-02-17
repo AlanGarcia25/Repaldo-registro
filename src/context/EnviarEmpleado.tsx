@@ -18,6 +18,7 @@ function EnviarEmpleado() {
         datos.estadoCivil,
         datos.domicilio,
         datos.tipoJornal,
+        datos.fechaIngreso,
         datosEmpresa
     ];
 
@@ -35,14 +36,13 @@ function EnviarEmpleado() {
             });
             return;
         }
-
         try {
             const payload = {
                 ...datos,
                 huellaBase64,
                 urlFirma,
             };
-
+            
             const ruta = `agrosmart/ags_contrato/`;
 
             const response = await api.post(ruta, payload, {
@@ -102,10 +102,12 @@ function EnviarEmpleado() {
             <button
                 type="button"
                 onClick={handleEnviar}
-                className={`w-full py-2 px-4 rounded-md text-white transition 
-                ${deshabilitado
+                className={
+                    `w-full py-2 px-4 rounded-md text-white transition 
+                    ${deshabilitado
                         ? "bg-green-600/50 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`}>
+                        : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`
+                }>
                 Descargar Contrato
             </button>
         </div>

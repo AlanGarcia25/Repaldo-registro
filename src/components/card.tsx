@@ -11,6 +11,7 @@ const Card = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [correoElec, setCorreoElec] = useState(false);
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -23,6 +24,12 @@ const Card = () => {
                 showConfirmButton: false,
                 timerProgressBar: true,
             })
+            return
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setCorreoElec(true);
+            setEmail('')
             return;
         }
         try {
@@ -72,11 +79,17 @@ const Card = () => {
                 <form onSubmit={enviarDatos}>
                     <Input
                         nombre="Correo"
-                        tipo="email"
+                        tipo="text"
                         value={email}
-                        onChange={(value) => setEmail(value)}
+                        onChange={(value) => {
+                            setEmail(value);
+                            if (correoElec) setCorreoElec(false);
+                        }}
                         placeholder="tucorreo@ejemplo.com"
                     />
+                    {correoElec && (
+                        <p className="text-red-500 text-sm pb-1">Correo electrónico inválido</p>
+                    )}
                     <Input
                         nombre="Contraseña"
                         tipo="password"
