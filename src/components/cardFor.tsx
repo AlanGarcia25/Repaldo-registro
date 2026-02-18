@@ -17,6 +17,7 @@ import type { datosEmpleado } from "../models/api.models";
 
 import { useSelectApi } from "../hooks/useSelectApi";
 import EnviarEmpleado from "../context/EnviarEmpleado";
+import { useInactividad } from "../hooks/useInactividad";
 import { useEmpleado } from "../context/EmpleadoContext";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
@@ -26,7 +27,7 @@ let instanciaSDKGlobal: any = null;
 // --------------------------------------- \\
 
 function CardFor() {
-    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa } = useEmpleado();
+    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa, limpiarEmpleado } = useEmpleado();
 
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>()
@@ -43,6 +44,27 @@ function CardFor() {
     const hoy = new Date();
     const maxFecha = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
+
+
+    ////// MAJENO DE CIERRE DE SESION
+    const manejarCierreDeSesion = () => {
+        limpiarEmpleado();
+        sessionStorage.removeItem('token');
+        sessionStorage.setItem('auth', 'false');
+        setImagenHuella("");
+
+        Swal.fire({
+            title: "Sesión expirada",
+            text: "No se ha registrado actividad o la sesión ha vencido.",
+            icon: "warning",
+            confirmButtonText: "Volver al Login",
+            allowOutsideClick: false
+        }).then(() => {
+            window.location.href = '/login';
+        });
+    };
+    useInactividad(manejarCierreDeSesion, 300000);
+    /////
 
     const { options: empresasOptions } = useSelectApi(
         getNombreEmpresas,
@@ -211,7 +233,32 @@ function CardFor() {
             }
         }
     };
-    ////    
+    ////
+    // MANEJO DE EXPIRACION DE HUELLA
+    useEffect(() => {
+        let temporizador: number | undefined;
+
+        if (huellaBase64) {
+            temporizador = window.setTimeout(() => {
+                setHuellaBase64("");
+                setImagenHuella("");
+
+                Swal.fire({
+                    title: "Sesión de captura expirada",
+                    text: "La huella se ha eliminado de la memoria por seguridad. Por favor, capture de nuevo si es necesario.",
+                    icon: "info",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#3085d6"
+                });
+            }, 90000);
+        }
+        return () => {
+            if (temporizador) {
+                window.clearTimeout(temporizador);
+            }
+        };
+    }, [huellaBase64, setHuellaBase64]);
+    //
 
     //// BUSCAR POR ID Y TECLA 'ENTER'
     const handleEmpleadoKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -287,11 +334,11 @@ function CardFor() {
             <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full select-none">
 
                 {/* ////////////////////////////////////////////////////MENU IZQUIERDO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
+                <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-l-xl 2xl:border-3">
+                    <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
 
-                    {/* PRIMERA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                    {/*   PRIMERA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-5">
                         <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 items-end">
                             <Select
                                 nombreSelect={"Empresas"}
@@ -309,7 +356,7 @@ function CardFor() {
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de ingreso</label>
+                                    <label className="text-sm 2xl:text-lg font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de ingreso</label>
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -319,14 +366,27 @@ function CardFor() {
                                         onChange={(val) => { handleInputChange('fechaIngreso', val) }}
                                         slotProps={{
                                             textField: {
+                                                sx: {
+                                                    '& .MuiCalendarPicker-root': {
+                                                        fontSize: '1.5rem', // Aumenta el tamaño general del calendario
+                                                    },
+                                                    '& .MuiPickersDay-root': {
+                                                        fontSize: '1.2rem', // Aumenta el tamaño de los números de los días
+                                                    },
+                                                    '& .MuiTypography-root': {
+                                                        fontSize: '1.2rem', // Aumenta los nombres de los días (Lu, Ma, Mi...)
+                                                    },
+                                                },
                                                 variant: "standard",
                                                 readOnly: true,
                                                 InputProps: {
                                                     disableUnderline: true,
-                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                    className: "!italic border-b-2 2xl:border-b-3 border-gray-500 font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full",
                                                 },
+
                                             },
                                         }}
+
                                     />
                                 </div>
                             </LocalizationProvider>
@@ -352,7 +412,7 @@ function CardFor() {
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
+                                    <label className="text-sm font-bold 2xl:text-lg text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -366,7 +426,7 @@ function CardFor() {
                                                 readOnly: true,
                                                 InputProps: {
                                                     disableUnderline: true,
-                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                    className: "italic border-b-2 2xl:border-b-3 border-gray-500 font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full",
                                                 },
                                             },
                                         }}
@@ -408,8 +468,8 @@ function CardFor() {
                         />
                     </div>
 
-                    {/* SEGUNA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-5">
+                    {/*   SEGUNA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-5 mt-5">
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
@@ -452,18 +512,18 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
-                        <div className="col-span-1 sm:col-span-2 flex flex-col gap-2 w-full mt-1">
-                            <label className="text-sm font-bold text-gray-700">Domicilio</label>
+                        <div className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col gap-2 w-full mt-1">
+                            <label className="text-sm 2xl:text-lg font-bold text-gray-700">Domicilio</label>
                             <textarea
-                                className="w-full border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none resize-none"
+                                className="resize-y w-full border-b-2 pb-5.5 md:pb-4.5 lg:pb-4.5 xl:pb-4.5 2xl:pb-2 2xl:border-b-3 border-gray-500 bg-transparent transition duration-300 delay-10 focus:border-blue-600 outline-none"
                                 placeholder="Ingrese su domicilio completo"
                                 value={datos.domicilio || ""}
-                                rows={2}
+                                rows={1}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
                                 readOnly={false}>
                             </textarea>
                         </div>
-                        <div className="col-span-1 sm:col-span-2">
+                        <div className="col-span-1 sm:col-span-2  2xl:col-span-1">
                             <Input
                                 nombre="Colonia"
                                 placeholder="Barrio/Colonia"
@@ -477,8 +537,8 @@ function CardFor() {
                 </div>
 
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-6 bg-white">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">Biométricos</h1>
+                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-r-lg 2xl:border-3 flex flex-col gap-6">
+                    <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-4 ">Biométricos</h1>
                     <div className="flex flex-col gap-6">
                         <div className="w-full">
                             <Boton
@@ -493,23 +553,26 @@ function CardFor() {
                         </div>
 
                         {huellaBase64 && (
-                            <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
+                            <div className="flex items-center justify-between gap-4 p-2 md:p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
                                 <div className="flex-1 text-center">
-                                    <h1 className="text-xl font-bold text-gray-800">¡Captura exitosa!</h1>
-                                    <p className="text-gray-500 text-sm">La huella capturada es la siguiente</p>
+                                    <h1 className="text-lg md:text-2xl font-bold text-gray-800 ">¡Captura exitosa!</h1>
+                                    <p className="text-gray-500 text-sm md:text-base">La huella capturada es la siguiente</p>
                                 </div>
-                                <div className="w-32 h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
+                                <div className="w-28 h-28 md:w-32 md:h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
                                     <img
                                         className="w-full h-full object-contain"
                                         src={imagenHuella}
-                                        alt="Huella" />
+                                        alt="Huella"
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        onDragStart={(e) => e.preventDefault()}
+                                    />
                                 </div>
                             </div>
                         )}
 
                         <div className="w-full flex flex-col gap-2">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Firma</label>
-                            <div className="w-full  overflow-hidden">
+                            <label className="text-sm 2xl:text-base font-bold text-gray-700 ml-1">Firma</label>
+                            <div className="w-full overflow-hidden">
                                 <Canvas />
                             </div>
                         </div>

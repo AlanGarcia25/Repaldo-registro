@@ -41,10 +41,10 @@ function Canvas() {
 
   return (
     <div >
-      <div className="border border-gray-800 bg-[#f9f9f9]">
+      <div className="border-2 2xl:border-3 border-gray-500 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full" }}
+          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full 2xl:h-42 2xl:w-full" }}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
           minWidth={3.3}
@@ -56,7 +56,11 @@ function Canvas() {
         <Boton
           nombreBoton="Limpiar"
           onClick={handleClear}
-          color="bg-stone-600 hover:bg-stone-800"
+          disabled={estaVacio}
+          color={estaVacio
+            ? "bg-gray-500/50 cursor-not-allowed text-white/90"
+            : "bg-stone-600 hover:bg-stone-800"
+          }
         />
 
         <Boton
@@ -69,8 +73,8 @@ function Canvas() {
           }}
           disabled={estaVacio ? true : false}
           color={estaVacio
-            ? "bg-yellow-600/40 cursor-not-allowed"
-            : "bg-yellow-600 hover:bg-yellow-700"}
+            ? "bg-gray-500/40 cursor-not-allowed text-white/90"
+            : "bg-blue-500 hover:bg-blue-600"}
         />
       </div>
     </div>

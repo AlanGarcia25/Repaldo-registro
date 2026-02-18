@@ -19,6 +19,8 @@ function EnviarEmpleado() {
         datos.domicilio,
         datos.tipoJornal,
         datos.fechaIngreso,
+        huellaBase64,
+        urlFirma,
         datosEmpresa
     ];
 
@@ -27,13 +29,6 @@ function EnviarEmpleado() {
 
     const handleEnviar = async () => {
         if (deshabilitado) {
-            Swal.fire({
-                title: "Advertencia",
-                text: "Por favor, complete todos los campos, incluída la empresa y los biométricos.",
-                icon: "warning",
-                timer: 2500,
-                showConfirmButton: false,
-            });
             return;
         }
         try {
@@ -79,7 +74,8 @@ function EnviarEmpleado() {
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
                     mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
-                    localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
+                    sessionStorage.setItem('auth', 'false'); 
                     window.location.href = '/login';
                     return Promise.reject(error)
                 } else if (error.response?.status === 404) {
@@ -98,18 +94,22 @@ function EnviarEmpleado() {
     };
 
     return (
-        <div className="flex flex-col w-full mx-auto gap-4 pb-4 pt-4">
+        <div className="flex flex-col w-full mx-auto gap-4 pb-4 pt-4 2xl:pt-2">
             <button
                 type="button"
                 onClick={handleEnviar}
+                disabled={deshabilitado}
                 className={
-                    `w-full py-2 px-4 rounded-md text-white transition 
+                    `w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
                     ${deshabilitado
-                        ? "bg-green-600/50 cursor-not-allowed"
+                        ? "bg-gray-600/50 text-white/90 cursor-not-allowed"
                         : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`
                 }>
                 Descargar Contrato
             </button>
+            {deshabilitado && (
+                <p className="text-center text-sm 2xl:text-base text-red-500">Ningun campo debe estar vacio</p>
+            )}
         </div>
     );
 }

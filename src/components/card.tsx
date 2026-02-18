@@ -35,9 +35,11 @@ const Card = () => {
         try {
             const credenciales = { Email: email, Password: password };
             const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales, { timeout: 5000 }); // --------
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem("auth", "true");
-            localStorage.setItem("empresaname", email);
+
+            sessionStorage.setItem('token', response.data.token);
+            sessionStorage.setItem("auth", "true");
+            sessionStorage.setItem("empresaname", email);
+
             await Swal.fire({
                 title: "Exito",
                 text: "Se inicio sesion",
@@ -74,8 +76,8 @@ const Card = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border border-gray-200 rounded-lg">
-                <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
+            <div className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border-2 border-gray-300 rounded-lg">
+                <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
                         nombre="Correo"
@@ -97,10 +99,12 @@ const Card = () => {
                         onChange={(value) => setPassword(value)}
                         placeholder="Ingresa tu contraseña"
                     />
-                    <Boton
-                        nombreBoton="Iniciar sesión"
-                        color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600'
-                    />
+                    <div className="pt-4">
+                        <Boton
+                            nombreBoton="Iniciar sesión"
+                            color='cursor-pointer  bg-blue-500 text-white hover:bg-blue-600'
+                        />
+                    </div>
                 </form>
             </div>
         </div>
