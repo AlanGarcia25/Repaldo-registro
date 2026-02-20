@@ -1,7 +1,12 @@
 import { useEmpleado } from "../context/EmpleadoContext";
 import { api } from "../services/api.config";
+import { botonVariants } from "../styles/motionVariantes";
+import { motion } from "motion/react";
+
+
 import Swal from 'sweetalert2';
 import axios from "axios";
+import Tooltip from "@mui/material/Tooltip";
 
 function EnviarEmpleado() {
     const { datos, huellaBase64, urlFirma, limpiarEmpleado, datosEmpresa } = useEmpleado();
@@ -37,7 +42,7 @@ function EnviarEmpleado() {
                 huellaBase64,
                 urlFirma,
             };
-            
+
             const ruta = `agrosmart/ags_contrato/`;
 
             const response = await api.post(ruta, payload, {
@@ -75,7 +80,7 @@ function EnviarEmpleado() {
                 if (error.response?.status === 401) {
                     mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
                     sessionStorage.removeItem('token');
-                    sessionStorage.setItem('auth', 'false'); 
+                    sessionStorage.setItem('auth', 'false');
                     window.location.href = '/login';
                     return Promise.reject(error)
                 } else if (error.response?.status === 404) {
@@ -95,22 +100,25 @@ function EnviarEmpleado() {
 
     return (
         <div className="flex flex-col w-full mx-auto gap-4 pb-4 pt-4 2xl:pt-2">
-            <button
-                type="button"
-                onClick={handleEnviar}
-                disabled={deshabilitado}
-                className={
-                    `w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
+            <Tooltip placement="top" title={deshabilitado ? "Completa todos los campos requeridos" : ""} disableInteractive arrow>
+                <motion.button
+                    variants={botonVariants}
+                    whileTap="whileTap"
+                    animate="animate"
+                    whileHover="whileHover"
+                    type="button"
+                    onClick={handleEnviar}
+                    disabled={deshabilitado}
+                    className={
+                        `w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
                     ${deshabilitado
-                        ? "bg-gray-600/50 text-white/90 cursor-not-allowed"
-                        : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`
-                }>
-                Descargar Contrato
-            </button>
-            {deshabilitado && (
-                <p className="text-center text-sm 2xl:text-base text-red-500">Ningun campo debe estar vacio</p>
-            )}
-        </div>
+                            ? "bg-gray-600/50 text-white/90 "
+                            : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`
+                    }>
+                    {deshabilitado ? "Campos incompletos" : "Descargar Contrato"}
+                </motion.button>
+            </Tooltip>
+        </div >
     );
 }
 

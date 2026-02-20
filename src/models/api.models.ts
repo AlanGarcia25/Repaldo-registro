@@ -49,7 +49,6 @@ export interface InputProps {
 
 // USO PARA EL COMPONENTE "select"
 export interface SelectProps {
-  readOnly?: boolean;
   nombreSelect: string;
   value?: string | number;
   onChange: (val: string) => void;

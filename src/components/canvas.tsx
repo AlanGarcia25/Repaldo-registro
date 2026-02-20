@@ -62,7 +62,6 @@ function Canvas() {
             : "bg-stone-600 hover:bg-stone-800"
           }
         />
-
         <Boton
           nombreBoton="Guardar firma"
           onClick={() => {

@@ -1,12 +1,21 @@
 import type { InputProps } from "../models/api.models";
 import { forwardRef } from "react";
+import { motion } from "motion/react";
+import { inputsVariant } from "../styles/motionVariantes";
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ nombre = "", tipo = "text", placeholder = "", value, onChange, onBlur, readOnly = false, onKeyDown }, ref) => {
+  ({ nombre, tipo, placeholder, value, onChange, onBlur, readOnly = false, onKeyDown }, ref) => {
     return (
       <div className="flex flex-col align-center py-2">
-        <label className="text-sm lg:text-md 2xl:text-lg font-bold text-gray-700"> {nombre} </label>
-        <input
+        <motion.label animate={{ color: value ? "#2563eb" : "#374151" }}
+          className="text-sm 2xl:text-lg font-bold transition-colors" >
+          {nombre}
+        </motion.label>
+        <motion.input
+          variants={inputsVariant}
+          initial="initial"
+          whileFocus={readOnly ? '' : 'focused'}
+          transition={{ duration: 0.3 }}
           ref={ref}
           type={tipo}
           value={value ?? ""}
@@ -19,7 +28,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             : placeholder}
           className={`${readOnly
             ? "cursor-not-allowed text-gray-600"
-            : "transition duration-300 delay-10 focus:border-blue-600 bg-transparent"} 
+            : " bg-transparent"} 
             placeholder:text-sm xl:placeholder:text-base 2xl:placeholder:text-lg truncate w-full min-w-0 border-b-2 2xl:border-b-3 border-gray-500 p-1.5 focus:outline-none font-sans placeholder:italic `}
         />
       </div>

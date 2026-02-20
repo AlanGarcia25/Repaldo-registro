@@ -1,7 +1,10 @@
 import { BASE_URL } from "../services/api.config";
 import { useNavigate } from "react-router-dom"
+import { motion } from "motion/react"
 import React, { useState } from "react"
 import Swal from 'sweetalert2';
+
+import { animacionInicio } from "../styles/motionVariantes";
 
 import axios from "axios"
 import Input from "./input"
@@ -15,7 +18,7 @@ const Card = () => {
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!email.trim() || !password.trim()) {
+        if (!email.trim() && !password.trim()) {
             Swal.fire({
                 title: "Atencion",
                 text: "Por favor, completa todos los campos",
@@ -31,7 +34,7 @@ const Card = () => {
             setCorreoElec(true);
             setEmail('')
             return;
-        }
+        } 
         try {
             const credenciales = { Email: email, Password: password };
             const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales, { timeout: 5000 }); // --------
@@ -76,7 +79,8 @@ const Card = () => {
 
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border-2 border-gray-300 rounded-lg">
+            <motion.div layout variants={animacionInicio} initial="initial" animate="animate"  exit="exit"  
+             className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border-2 border-gray-300 rounded-lg">
                 <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
@@ -106,7 +110,7 @@ const Card = () => {
                         />
                     </div>
                 </form>
-            </div>
+            </motion.div>
         </div>
     )
 }

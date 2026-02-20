@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
+import { motion } from "motion/react";
 import Swal from "sweetalert2";
+import { modalVariant } from "../styles/motionVariantes";
 
 import type {ModalHuellaProps} from '../models/api.models'
 
@@ -65,7 +67,7 @@ const Modal: React.FC<ModalHuellaProps> = ({ abierto, estado, mensaje, onClose }
 
     return (
         <div className="fixed inset-0  flex items-center justify-center bg-black/50 backdrop-blur-[1px] p-4 overscroll-contain">
-            <div className="bg-white rounded-md shadow-2xl pt-10 pb-10 px-6 w-full max-w-[95%] sm:max-w-[32em] text-center">
+            <motion.div  variants={modalVariant} initial="initial" animate="animate"  className="bg-white rounded-md shadow-2xl pt-10 pb-10 px-6 w-full max-w-[95%] sm:max-w-[32em] text-center">
                 <div className="mb-6">
                     <Spinner />
                 </div>
@@ -75,7 +77,7 @@ const Modal: React.FC<ModalHuellaProps> = ({ abierto, estado, mensaje, onClose }
                 <p className="text-[1rem] text-[#545454] font-normal">
                     Por favor, coloque su dedo en el lector...
                 </p>
-            </div>
+            </motion.div>
         </div>
     );
 };

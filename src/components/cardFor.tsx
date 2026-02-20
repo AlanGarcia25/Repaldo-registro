@@ -30,7 +30,7 @@ let instanciaSDKGlobal: any = null;
 // --------------------------------------- \\
 
 function CardFor() {
-    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa, limpiarEmpleado } = useEmpleado();
+    const { urlFirma, huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa, limpiarEmpleado } = useEmpleado();
 
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>()
@@ -360,8 +360,8 @@ function CardFor() {
                                     <motion.label
                                         animate={{ color: datos.fechaIngreso ? "#2563eb" : "#374151" }}
                                         className="text-sm 2xl:text-lg font-bold transition-colors">
-                                        Fecha de ingreso 
-                                    </motion.label>                                    
+                                        Fecha de ingreso
+                                    </motion.label>
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -569,7 +569,10 @@ function CardFor() {
                         )}
 
                         <div className="w-full flex flex-col gap-2">
-                            <label className="text-sm 2xl:text-base font-bold text-gray-700 ml-1">Firma</label>
+                            <motion.label animate={{ color: urlFirma ? "#2563eb" : "#374151" }}
+                                className="text-base 2xl:text-lg font-bold transition-colors">
+                                Firma
+                            </motion.label>
                             <div className="w-full overflow-hidden">
                                 <Canvas />
                             </div>
@@ -577,6 +580,8 @@ function CardFor() {
                         <div className="mt-2 w-full">
                             <EnviarEmpleado />
                         </div>
+                    </motion.div>
+                </motion.div>
             </div >
             <Modal
                 abierto={modalAbierto}
@@ -584,6 +589,7 @@ function CardFor() {
                 mensaje={mensajeHuella}
                 onClose={() => setModalAbierto(false)}
             />
+        </motion.div >
     );
 }
 
