@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
+import { motion } from "motion/react";
 
 import 'dayjs/locale/es';
 import dayjs from "dayjs";
@@ -21,6 +22,8 @@ import { useInactividad } from "../hooks/useInactividad";
 import { useEmpleado } from "../context/EmpleadoContext";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
+
+import { contenedorVariants, inputsVariant, itemVariants } from "../styles/motionVariantes";
 
 // ¡¡¡ INSTANCIA PARA USO DE SINGLETON !!! \\
 let instanciaSDKGlobal: any = null;
@@ -330,11 +333,11 @@ function CardFor() {
     ///////////////////////////////////////// 
 
     return (
-        <div className="p-3">
+        <motion.div variants={contenedorVariants} initial="hidden" animate="visible" className="p-3">
             <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full select-none">
 
                 {/* ////////////////////////////////////////////////////MENU IZQUIERDO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-l-xl 2xl:border-3">
+                <motion.div variants={itemVariants} className="flex-1 md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-l-xl 2xl:border-3">
                     <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
 
                     {/*   PRIMERA PARTE DEL MENU IZQUIERDO   */}
@@ -344,19 +347,21 @@ function CardFor() {
                                 nombreSelect={"Empresas"}
                                 options={empresasOptions}
                                 value={datosEmpresa}
-                                readOnly={false}
                                 onChange={setDatosEmpresa}
                             />
                             <Select
                                 nombreSelect={"Tipo jornal"}
                                 options={OPCIONES_TIPO_JORNAL}
                                 value={datos.tipoJornal || ""}
-                                readOnly={false}
                                 onChange={(val) => { handleInputChange('tipoJornal', val) }}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm 2xl:text-lg font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de ingreso</label>
+                                    <motion.label
+                                        animate={{ color: datos.fechaIngreso ? "#2563eb" : "#374151" }}
+                                        className="text-sm 2xl:text-lg font-bold transition-colors">
+                                        Fecha de ingreso 
+                                    </motion.label>                                    
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -366,17 +371,6 @@ function CardFor() {
                                         onChange={(val) => { handleInputChange('fechaIngreso', val) }}
                                         slotProps={{
                                             textField: {
-                                                sx: {
-                                                    '& .MuiCalendarPicker-root': {
-                                                        fontSize: '1.5rem', // Aumenta el tamaño general del calendario
-                                                    },
-                                                    '& .MuiPickersDay-root': {
-                                                        fontSize: '1.2rem', // Aumenta el tamaño de los números de los días
-                                                    },
-                                                    '& .MuiTypography-root': {
-                                                        fontSize: '1.2rem', // Aumenta los nombres de los días (Lu, Ma, Mi...)
-                                                    },
-                                                },
                                                 variant: "standard",
                                                 readOnly: true,
                                                 InputProps: {
@@ -407,12 +401,13 @@ function CardFor() {
                                 nombreSelect={"Sexo"}
                                 options={OPCIONES_SEXO}
                                 value={datos.sexo}
-                                readOnly={false}
                                 onChange={(val) => handleInputChange("sexo", val)}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold 2xl:text-lg text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
+                                    <motion.label animate={{ color: datos.fechaNacimiento ? "#2563eb" : "#374151" }} className="text-sm 2xl:text-lg font-bold transition-colors">
+                                        Fecha de nacimiento
+                                    </motion.label>
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -482,14 +477,10 @@ function CardFor() {
                             nombreSelect={"Estado Civil"}
                             options={OPCIONES_ESTADO_CIVIL}
                             value={datos.estadoCivil || ""}
-                            readOnly={false}
                             onChange={(val) => { handleInputChange('estadoCivil', val) }}
                         />
                         <Input
-                            nombre={
-                                <div className="max-w[150px] truncate" >
-                                    Lugar de nacimiento
-                                </div>}
+                            nombre="Lugar de Nac"
                             placeholder="Estado"
                             tipo="text"
                             value={datos.lugarNacimiento}
@@ -512,17 +503,24 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
-                        <div className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col gap-2 w-full mt-1">
-                            <label className="text-sm 2xl:text-lg font-bold text-gray-700">Domicilio</label>
-                            <textarea
-                                className="resize-y w-full border-b-2 pb-5.5 md:pb-4.5 lg:pb-4.5 xl:pb-4.5 2xl:pb-2 2xl:border-b-3 border-gray-500 bg-transparent transition duration-300 delay-10 focus:border-blue-600 outline-none"
+                        <motion.div layout className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col py-2 w-full mt-1">
+                            <motion.label animate={{ color: datos.domicilio ? "#2563eb" : "#374151" }}
+                                className="text-sm 2xl:text-lg font-bold transition-colors">
+                                Domicilio
+                            </motion.label>
+
+                            <motion.textarea
+                                variants={inputsVariant}
+                                initial="initial"
+                                whileFocus="focused"
+                                transition={{ duration: 0.3 }}
+                                rows={1}
                                 placeholder="Ingrese su domicilio completo"
                                 value={datos.domicilio || ""}
-                                rows={1}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
-                                readOnly={false}>
-                            </textarea>
-                        </div>
+                                className="resize-y w-full bg-transparent p-1.5 pb-5.5 focus:outline-none font-sans placeholder:italic placeholder:text-sm xl:placeholder:text-base 2xl:placeholder:text-lg border-b-2 2xl:border-b-3 border-gray-500"
+                            />
+                        </motion.div>
                         <div className="col-span-1 sm:col-span-2  2xl:col-span-1">
                             <Input
                                 nombre="Colonia"
@@ -534,12 +532,12 @@ function CardFor() {
                             />
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-r-lg 2xl:border-3 flex flex-col gap-6">
+                <motion.div layout variants={itemVariants} className="w-full md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-r-lg 2xl:border-3 flex flex-col gap-6">
                     <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-4 ">Biométricos</h1>
-                    <div className="flex flex-col gap-6">
+                    <motion.div layout className="flex flex-col gap-6">
                         <div className="w-full">
                             <Boton
                                 nombreBoton="Capturar huella"
@@ -579,8 +577,6 @@ function CardFor() {
                         <div className="mt-2 w-full">
                             <EnviarEmpleado />
                         </div>
-                    </div>
-                </div>
             </div >
             <Modal
                 abierto={modalAbierto}
@@ -588,7 +584,6 @@ function CardFor() {
                 mensaje={mensajeHuella}
                 onClose={() => setModalAbierto(false)}
             />
-        </div >
     );
 }
 
