@@ -1,17 +1,17 @@
-import Swal from 'sweetalert2';
-import React, { useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { BASE_URL } from "../services/api.config";
+import { useNavigate } from "react-router-dom"
+import React, { useState } from "react"
+import Swal from 'sweetalert2';
 
+import axios from "axios"
 import Input from "./input"
 import Boton from "./boton"
-import axios from "axios"
-
 
 const Card = () => {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [correoElec, setCorreoElec] = useState(false);
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -24,14 +24,22 @@ const Card = () => {
                 showConfirmButton: false,
                 timerProgressBar: true,
             })
+            return
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            setCorreoElec(true);
+            setEmail('')
             return;
         }
         try {
             const credenciales = { Email: email, Password: password };
             const response = await axios.post(`${BASE_URL}/usuario/contrato/login`, credenciales, { timeout: 5000 }); // --------
-            localStorage.setItem('token', response.data.token);
-            localStorage.setItem("auth", "true");
-            localStorage.setItem("empresaname", email);
+
+            sessionStorage.setItem('token', response.data.token);
+            sessionStorage.setItem("auth", "true");
+            sessionStorage.setItem("empresaname", email);
+
             await Swal.fire({
                 title: "Exito",
                 text: "Se inicio sesion",
@@ -39,12 +47,12 @@ const Card = () => {
                 timer: 2000,
                 showConfirmButton: false,
                 timerProgressBar: true,
-                // RECTIFICAR QUE LOS ESTILOS SE VEA DE MANERA CORRECTA
                 toast: true,
                 position: "top-end",
-                background: '#EBE6E6',
-                color: '#000'
-                //
+                color: '#000',
+                customClass: {
+                    popup: '!border-2 !border-black'
+                }
             })
             setEmail('')
             setPassword('')
@@ -66,19 +74,24 @@ const Card = () => {
         }
     };
 
-
     return (
         <div className="min-h-screen flex items-center justify-center ">
-            <div className="box-border p-6 w-full max-w-md shadow-xl/30 ring-gray-200/50 border border-gray-200 rounded-lg">
-                <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
+            <div className="box-border p-6 w-5/6 h-auto sm:w-3/5 sm:h-3/4 lg:w-2/5 shadow-xl/30 ring-gray-200/50 border-2 border-gray-300 rounded-lg">
+                <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Inicio de sesión</h1>
                 <form onSubmit={enviarDatos}>
                     <Input
                         nombre="Correo"
-                        tipo="email"
+                        tipo="text"
                         value={email}
-                        onChange={(value) => setEmail(value)}
+                        onChange={(value) => {
+                            setEmail(value);
+                            if (correoElec) setCorreoElec(false);
+                        }}
                         placeholder="tucorreo@ejemplo.com"
                     />
+                    {correoElec && (
+                        <p className="text-red-500 text-sm pb-1">Correo electrónico inválido</p>
+                    )}
                     <Input
                         nombre="Contraseña"
                         tipo="password"
@@ -86,10 +99,12 @@ const Card = () => {
                         onChange={(value) => setPassword(value)}
                         placeholder="Ingresa tu contraseña"
                     />
-                    <Boton
-                        nombreBoton="Iniciar sesión"
-                        color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600'
-                    />
+                    <div className="pt-4">
+                        <Boton
+                            nombreBoton="Iniciar sesión"
+                            color='cursor-pointer  bg-blue-500 text-white hover:bg-blue-600'
+                        />
+                    </div>
                 </form>
             </div>
         </div>
@@ -97,6 +112,3 @@ const Card = () => {
 }
 
 export default Card
-
-// cenriquez@agrocir.com
-// ag2026AGR.

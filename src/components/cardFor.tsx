@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import Swal from 'sweetalert2'
+import { motion } from "motion/react";
 
-import dayjs from "dayjs";
 import 'dayjs/locale/es';
+import dayjs from "dayjs";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -17,17 +18,19 @@ import type { datosEmpleado } from "../models/api.models";
 
 import { useSelectApi } from "../hooks/useSelectApi";
 import EnviarEmpleado from "../context/EnviarEmpleado";
+import { useInactividad } from "../hooks/useInactividad";
 import { useEmpleado } from "../context/EmpleadoContext";
 import { api, getNombreEmpresas, getDatosEmpleado } from "../services/api.config";
 import { OPCIONES_TIPO_JORNAL, OPCIONES_ESTADO_CIVIL, OPCIONES_SEXO } from "./data";
 
+import { contenedorVariants, inputsVariant, itemVariants } from "../styles/motionVariantes";
 
 // ¡¡¡ INSTANCIA PARA USO DE SINGLETON !!! \\
 let instanciaSDKGlobal: any = null;
 // --------------------------------------- \\
 
 function CardFor() {
-    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa } = useEmpleado();
+    const { huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa, limpiarEmpleado } = useEmpleado();
 
     const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
     const [mensajeHuella, setMensajeHuella] = useState<string>()
@@ -44,6 +47,27 @@ function CardFor() {
     const hoy = new Date();
     const maxFecha = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
     const minFecha = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate()).toISOString().split("T")[0];
+
+
+    ////// MAJENO DE CIERRE DE SESION
+    const manejarCierreDeSesion = () => {
+        limpiarEmpleado();
+        sessionStorage.removeItem('token');
+        sessionStorage.setItem('auth', 'false');
+        setImagenHuella("");
+
+        Swal.fire({
+            title: "Sesión expirada",
+            text: "No se ha registrado actividad o la sesión ha vencido.",
+            icon: "warning",
+            confirmButtonText: "Volver al Login",
+            allowOutsideClick: false
+        }).then(() => {
+            window.location.href = '/login';
+        });
+    };
+    useInactividad(manejarCierreDeSesion, 300000);
+    /////
 
     const { options: empresasOptions } = useSelectApi(
         getNombreEmpresas,
@@ -212,7 +236,32 @@ function CardFor() {
             }
         }
     };
-    ////    
+    ////
+    // MANEJO DE EXPIRACION DE HUELLA
+    useEffect(() => {
+        let temporizador: number | undefined;
+
+        if (huellaBase64) {
+            temporizador = window.setTimeout(() => {
+                setHuellaBase64("");
+                setImagenHuella("");
+
+                Swal.fire({
+                    title: "Sesión de captura expirada",
+                    text: "La huella se ha eliminado de la memoria por seguridad. Por favor, capture de nuevo si es necesario.",
+                    icon: "info",
+                    confirmButtonText: "Entendido",
+                    confirmButtonColor: "#3085d6"
+                });
+            }, 90000);
+        }
+        return () => {
+            if (temporizador) {
+                window.clearTimeout(temporizador);
+            }
+        };
+    }, [huellaBase64, setHuellaBase64]);
+    //
 
     //// BUSCAR POR ID Y TECLA 'ENTER'
     const handleEmpleadoKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -272,7 +321,6 @@ function CardFor() {
     };
     ////
 
-
     // INGRESAR LOS VALORES A LOS INPUT
     const handleInputChange = (campo: keyof datosEmpleado, valor: any) => {
         setDatos((prev) => ({
@@ -284,35 +332,36 @@ function CardFor() {
 
     ///////////////////////////////////////// 
 
-
     return (
-        <div className="p-3">
-            <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full">
+        <motion.div variants={contenedorVariants} initial="hidden" animate="visible" className="p-3">
+            <div className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full select-none">
 
                 {/* ////////////////////////////////////////////////////MENU IZQUIERDO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="flex-1 md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
+                <motion.div variants={itemVariants} className="flex-1 md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-l-xl 2xl:border-3">
+                    <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
 
-                    {/* PRIMERA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5">
+                    {/*   PRIMERA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-5">
                         <div className="col-span-1 sm:col-span-2 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-5 items-end">
                             <Select
                                 nombreSelect={"Empresas"}
                                 options={empresasOptions}
                                 value={datosEmpresa}
-                                readOnly={false}
                                 onChange={setDatosEmpresa}
                             />
                             <Select
                                 nombreSelect={"Tipo jornal"}
                                 options={OPCIONES_TIPO_JORNAL}
                                 value={datos.tipoJornal || ""}
-                                readOnly={false}
                                 onChange={(val) => { handleInputChange('tipoJornal', val) }}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de ingreso</label>
+                                    <motion.label
+                                        animate={{ color: datos.fechaIngreso ? "#2563eb" : "#374151" }}
+                                        className="text-sm 2xl:text-lg font-bold transition-colors">
+                                        Fecha de ingreso 
+                                    </motion.label>                                    
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -326,10 +375,12 @@ function CardFor() {
                                                 readOnly: true,
                                                 InputProps: {
                                                     disableUnderline: true,
-                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                    className: "!italic border-b-2 2xl:border-b-3 border-gray-500 font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full",
                                                 },
+
                                             },
                                         }}
+
                                     />
                                 </div>
                             </LocalizationProvider>
@@ -338,7 +389,11 @@ function CardFor() {
                                 tipo="text"
                                 placeholder={"Ingrese el ID del empleado"}
                                 value={datos.empleadoId}
-                                onChange={(val) => handleInputChange('empleadoId', val)}
+                                onChange={(val) => {
+                                    if (/^\d{0,10}$/.test(val)) {
+                                        handleInputChange('empleadoId', val)
+                                    }
+                                }}
                                 readOnly={false}
                                 onKeyDown={handleEmpleadoKeyDown}
                             />
@@ -346,12 +401,13 @@ function CardFor() {
                                 nombreSelect={"Sexo"}
                                 options={OPCIONES_SEXO}
                                 value={datos.sexo}
-                                readOnly={false}
                                 onChange={(val) => handleInputChange("sexo", val)}
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <label className="text-sm font-bold text-gray-700 pb-1 max-w[120px] truncate">Fecha de nacimiento</label>
+                                    <motion.label animate={{ color: datos.fechaNacimiento ? "#2563eb" : "#374151" }} className="text-sm 2xl:text-lg font-bold transition-colors">
+                                        Fecha de nacimiento
+                                    </motion.label>
                                     <DatePicker
                                         format="  DD / MM / YYYY"
                                         views={['year', 'month', 'day']}
@@ -365,7 +421,7 @@ function CardFor() {
                                                 readOnly: true,
                                                 InputProps: {
                                                     disableUnderline: true,
-                                                    className: "italic border-b-[.1px] border-black font-sans bg-transparent focus-within:border-blue-700 outline-none w-full",
+                                                    className: "italic border-b-2 2xl:border-b-3 border-gray-500 font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full",
                                                 },
                                             },
                                         }}
@@ -375,6 +431,7 @@ function CardFor() {
                         </div>
                         <Input
                             nombre="Nombre"
+                            placeholder="Ingrese su nombre"
                             tipo="text"
                             value={datos.empleadoNombre}
                             onChange={(val) => handleInputChange('empleadoNombre', val)}
@@ -382,6 +439,7 @@ function CardFor() {
                         />
                         <Input
                             nombre="Apellido Paterno"
+                            placeholder="Ingrese su Apellido Paterno"
                             tipo="text"
                             value={datos.apellidoPaterno}
                             onChange={(val) => handleInputChange('apellidoPaterno', val)}
@@ -389,6 +447,7 @@ function CardFor() {
                         />
                         <Input
                             nombre="Apellido Materno"
+                            placeholder="Ingrese su Apellido Materno"
                             tipo="text"
                             value={datos.apellidoMaterno}
                             onChange={(val) => handleInputChange('apellidoMaterno', val)}
@@ -404,8 +463,8 @@ function CardFor() {
                         />
                     </div>
 
-                    {/* SEGUNA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-5 mt-5">
+                    {/*   SEGUNA PARTE DEL MENU IZQUIERDO   */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-5 mt-5">
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
@@ -418,16 +477,11 @@ function CardFor() {
                             nombreSelect={"Estado Civil"}
                             options={OPCIONES_ESTADO_CIVIL}
                             value={datos.estadoCivil || ""}
-                            readOnly={false}
                             onChange={(val) => { handleInputChange('estadoCivil', val) }}
                         />
                         <Input
-                            nombre={
-                                <div className="max-w[120px] truncate" >
-                                    Lugar de nacimiento
-                                </div>
-                            }
-                            placeholder="Estado, Ciudad, Municipio"
+                            nombre="Lugar de Nac"
+                            placeholder="Estado"
                             tipo="text"
                             value={datos.lugarNacimiento}
                             onChange={(val) => {
@@ -449,18 +503,25 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
-                        <div className="col-span-1 sm:col-span-2 flex flex-col gap-2 w-full mt-1">
-                            <label className="text-sm font-bold text-gray-700">Domicilio</label>
-                            <textarea
-                                className="w-full border-b-[.1px] border-black p-2 bg-transparent focus:border-blue-700 outline-none resize-none"
+                        <motion.div layout className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col py-2 w-full mt-1">
+                            <motion.label animate={{ color: datos.domicilio ? "#2563eb" : "#374151" }}
+                                className="text-sm 2xl:text-lg font-bold transition-colors">
+                                Domicilio
+                            </motion.label>
+
+                            <motion.textarea
+                                variants={inputsVariant}
+                                initial="initial"
+                                whileFocus="focused"
+                                transition={{ duration: 0.3 }}
+                                rows={1}
                                 placeholder="Ingrese su domicilio completo"
                                 value={datos.domicilio || ""}
-                                rows={2}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
-                                readOnly={false}>
-                            </textarea>
-                        </div>
-                        <div className="col-span-1 sm:col-span-2">
+                                className="resize-y w-full bg-transparent p-1.5 pb-5.5 focus:outline-none font-sans placeholder:italic placeholder:text-sm xl:placeholder:text-base 2xl:placeholder:text-lg border-b-2 2xl:border-b-3 border-gray-500"
+                            />
+                        </motion.div>
+                        <div className="col-span-1 sm:col-span-2  2xl:col-span-1">
                             <Input
                                 nombre="Colonia"
                                 placeholder="Barrio/Colonia"
@@ -471,12 +532,12 @@ function CardFor() {
                             />
                         </div>
                     </div>
-                </div>
+                </motion.div>
 
                 {/* ////////////////////////////////////////////////////MENU DERECHO\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\ */}
-                <div className="w-full md:w-1/2 p-5 box-border shadow-xl border border-gray-800 rounded-lg flex flex-col gap-6 bg-white">
-                    <h1 className="text-xl font-semibold flex items-center justify-center pt-2 pb-4 border-b border-gray-100">Biométricos</h1>
-                    <div className="flex flex-col gap-6">
+                <motion.div layout variants={itemVariants} className="w-full md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-r-lg 2xl:border-3 flex flex-col gap-6">
+                    <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-4 ">Biométricos</h1>
+                    <motion.div layout className="flex flex-col gap-6">
                         <div className="w-full">
                             <Boton
                                 nombreBoton="Capturar huella"
@@ -490,33 +551,32 @@ function CardFor() {
                         </div>
 
                         {huellaBase64 && (
-                            <div className="flex items-center justify-between gap-4 p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
+                            <div className="flex items-center justify-between gap-4 p-2 md:p-4 bg-gray-50 border border-gray-200 rounded-xl shadow-inner">
                                 <div className="flex-1 text-center">
-                                    <h1 className="text-xl font-bold text-gray-800">¡Captura exitosa!</h1>
-                                    <p className="text-gray-500 text-sm">La huella capturada es la siguiente</p>
+                                    <h1 className="text-lg md:text-2xl font-bold text-gray-800 ">¡Captura exitosa!</h1>
+                                    <p className="text-gray-500 text-sm md:text-base">La huella capturada es la siguiente</p>
                                 </div>
-
-                                <div className="w-32 h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
+                                <div className="w-28 h-28 md:w-32 md:h-32 overflow-hidden rounded-lg shrink-0 border border-gray-300 bg-white p-1">
                                     <img
                                         className="w-full h-full object-contain"
                                         src={imagenHuella}
                                         alt="Huella"
+                                        onContextMenu={(e) => e.preventDefault()}
+                                        onDragStart={(e) => e.preventDefault()}
                                     />
                                 </div>
                             </div>
                         )}
 
                         <div className="w-full flex flex-col gap-2">
-                            <label className="text-sm font-bold text-gray-700 ml-1">Firma</label>
-                            <div className="w-full  overflow-hidden">
+                            <label className="text-sm 2xl:text-base font-bold text-gray-700 ml-1">Firma</label>
+                            <div className="w-full overflow-hidden">
                                 <Canvas />
                             </div>
                         </div>
                         <div className="mt-2 w-full">
                             <EnviarEmpleado />
                         </div>
-                    </div>
-                </div>
             </div >
             <Modal
                 abierto={modalAbierto}
@@ -524,7 +584,6 @@ function CardFor() {
                 mensaje={mensajeHuella}
                 onClose={() => setModalAbierto(false)}
             />
-        </div >
     );
 }
 
