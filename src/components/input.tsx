@@ -1,21 +1,28 @@
 import type { InputProps } from "../models/api.models";
 import { forwardRef } from "react";
 import { motion } from "motion/react";
-import { inputsVariant } from "../styles/motionVariantes";
+import { clicVariant, inputsVariant } from "../styles/motionVariantes";
 
 const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ nombre, tipo, placeholder, value, onChange, onBlur, readOnly = false, onKeyDown }, ref) => {
+
+    const colorAzulFuerte = "#193cb8"; 
+
     return (
-      <div className="flex flex-col align-center py-2">
-        <motion.label animate={{ color: value ? "#2563eb" : "#374151" }}
-          className="text-sm 2xl:text-lg font-bold transition-colors" >
+      <motion.div variants={clicVariant} whileTap={readOnly ? '' : 'whileTap'} className="flex flex-col align-center py-2">
+        <motion.label
+          animate={{ color: value ? colorAzulFuerte : "#374151" }}
+          className="text-sm 2xl:text-lg font-bold transition-colors">
           {nombre}
         </motion.label>
+
         <motion.input
           variants={inputsVariant}
           initial="initial"
+          animate={{
+            borderColor: value ? "#193cb8" : "oklch(55.1% 0.027 264.364)"
+          }}
           whileFocus={readOnly ? '' : 'focused'}
-          transition={{ duration: 0.3 }}
           ref={ref}
           type={tipo}
           value={value ?? ""}
@@ -23,15 +30,14 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
           onKeyDown={onKeyDown}
           onChange={(e) => onChange(e.target.value)}
           onBlur={(e) => onBlur && onBlur(e.target.value)}
-          placeholder={readOnly
-            ? "Datos del sistema"
+          placeholder={readOnly 
+            ? "Datos completados por el sistema" 
             : placeholder}
-          className={`${readOnly
-            ? "cursor-not-allowed text-gray-600"
-            : " bg-transparent"} 
-            placeholder:text-sm xl:placeholder:text-base 2xl:placeholder:text-lg truncate w-full min-w-0 border-b-2 2xl:border-b-3 border-gray-500 p-1.5 focus:outline-none font-sans placeholder:italic `}
+          className={`${readOnly 
+            ? "cursor-not-allowed text-gray-600" 
+            : "bg-transparent"} placeholder:text-sm xl:placeholder:text-base 2xl:placeholder:text-lg truncate w-full min-w-0 border-b-2 2xl:border-b-3 p-1.5 focus:outline-none font-sans placeholder:italic`}
         />
-      </div>
+      </motion.div>
     );
   }
 );

@@ -18,7 +18,7 @@ const Card = () => {
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
-        if (!email.trim() && !password.trim()) {
+        if (!email.trim() || !password.trim()) {
             Swal.fire({
                 title: "Atencion",
                 text: "Por favor, completa todos los campos",
@@ -106,7 +106,7 @@ const Card = () => {
                     <div className="pt-4">
                         <Boton
                             nombreBoton="Iniciar sesión"
-                            color='cursor-pointer  bg-blue-500 text-white hover:bg-blue-600'
+                            color='cursor-pointer bg-blue-500 text-white hover:bg-blue-600'
                         />
                     </div>
                 </form>

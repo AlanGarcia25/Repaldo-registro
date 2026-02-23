@@ -1,8 +1,9 @@
 import { type Variants } from "framer-motion";
 
+// COMPONENTE DE INICIO Y SALIDA DE CARD
 export const animacionInicio: Variants = {
     initial: {
-        y:135,
+        y: 135,
         opacity: 0
     },
     animate: {
@@ -20,29 +21,37 @@ export const animacionInicio: Variants = {
     },
     exit: {
         opacity: 0,
-        y:-135,
+        y: -135,
         transition: {
             duration: 0.3
         },
     },
 };
 
-
+//// COMPONENTE PARA EL RENDERIZADO POR PARTES 
+// PADRE
 export const contenedorVariants = {
     hidden: { opacity: 0 },
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.3,
+            delayChildren: 0.5,
         }
     }
 };
-
-export const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 }
+// HIJOS
+export const itemizquierdaVariants = {
+    hidden: { y: 80, opacity: 0 },
+    visible: { y: 0, opacity: 1 },
 };
+export const itemsDerechaVariants = {
+    hidden: { y: -80, opacity: 0 },
+    visible: { y: 0, opacity: 1 }
+}
+////
 
+
+// COMPONENTE DE BOTONES
 export const botonVariants: Variants = {
     whileTap: { scale: 0.90 },
     animate: {
@@ -53,23 +62,27 @@ export const botonVariants: Variants = {
     whileHover: { y: -3 }
 }
 
+
+// COMPONENTE DE INPUTS Y DOMICILIO
 export const inputsVariant: Variants = {
     initial: {
-        y:0,
         borderBottomWidth: 2,
-        borderColor: 'oklch(55.1% 0.027 264.364)'
     },
     focused: {
-        y: -2,
         borderColor: 'oklch(54.6% 0.245 262.881)',
     },
 }
 
+// COMPONENDE DE INPUTS Y DOMICILIO
+export const clicVariant: Variants = {
+    whileTap: { scale: 0.98 }
+}
 
+// COMPONENTE DEL MODAL
 export const modalVariant: Variants = {
     initial: {
         scale: 0,
-        opacity:0
+        opacity: 0
     },
     animate: {
         scale: 1,
@@ -82,3 +95,4 @@ export const modalVariant: Variants = {
         },
     },
 };
+

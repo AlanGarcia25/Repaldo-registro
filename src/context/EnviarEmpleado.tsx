@@ -110,7 +110,7 @@ function EnviarEmpleado() {
                     onClick={handleEnviar}
                     disabled={deshabilitado}
                     className={
-                        `w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
+                        `duration-50 ease-in-out w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
                     ${deshabilitado
                             ? "bg-gray-600/50 text-white/90 "
                             : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`

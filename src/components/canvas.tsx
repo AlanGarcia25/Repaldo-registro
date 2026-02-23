@@ -41,7 +41,7 @@ function Canvas() {
 
   return (
     <div >
-      <div className="border-2 2xl:border-3 border-gray-500 bg-[#f9f9f9]">
+      <div className={`${estaVacio ? "border-gray-500" : "border-blue-800"} border-2 2xl:border-3 bg-[#f9f9f9]`}>
         <SignatureCanvas
           ref={sigCanvas}
           canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full 2xl:h-42 2xl:w-full" }}
