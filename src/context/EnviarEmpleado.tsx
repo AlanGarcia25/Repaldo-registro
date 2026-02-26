@@ -31,34 +31,29 @@ function EnviarEmpleado() {
 
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
     const deshabilitado = hayCamposVacios || !huellaBase64 || !urlFirma;
-
     const handleEnviar = async () => {
-        if (deshabilitado) {
-            return;
-        }
-        try {
-            const payload = {
-                ...datos,
-                huellaBase64,
-                urlFirma,
-            };
+        if (deshabilitado) return;
 
+        try {
+            const payload = { ...datos, huellaBase64, urlFirma };
             const ruta = `agrosmart/ags_contrato/`;
 
             const response = await api.post(ruta, payload, {
                 responseType: 'blob',
+                headers: { 'Accept': 'application/pdf' }
             });
 
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const blob = new Blob([response.data], { type: response.headers['content-type'] });
+            const url = window.URL.createObjectURL(blob);
+
             const link = document.createElement('a');
             link.href = url;
-
-            link.setAttribute('download', `Contrato_${datos.empleadoId}.docx`);
+            link.setAttribute('download', `Contrato_${datos.empleadoId}.pdf`);
 
             document.body.appendChild(link);
             link.click();
 
-            link.parentNode?.removeChild(link);
+            link.remove();
             window.URL.revokeObjectURL(url);
 
             Swal.fire({
@@ -67,25 +62,31 @@ function EnviarEmpleado() {
                 icon: "success",
                 timer: 2000,
                 showConfirmButton: false,
-            }).then(() => {
-                limpiarEmpleado();
-            });
+            }).then(() => limpiarEmpleado());
 
-        } catch (error: unknown) {
+        } catch (error) {
             console.error("Error al obtener contrato:", error);
+            let mensaje = "No se pudo generar el documento";
 
-            let mensaje = "No se pudo generar el documento Word";
-
-            if (axios.isAxiosError(error)) {
-                if (error.response?.status === 401) {
-                    mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
-                    sessionStorage.removeItem('token');
-                    sessionStorage.setItem('auth', 'false');
-                    window.location.href = '/login';
-                    return Promise.reject(error)
-                } else if (error.response?.status === 404) {
-                    mensaje = "No se encontró el recurso. Revisa los IDs.";
+            if (axios.isAxiosError(error) && error.response) {
+                if (error.response.data instanceof Blob) {
+                    const errorText = await error.response.data.text();
+                    const errorJson = JSON.parse(errorText);
+                    mensaje = errorJson.message || mensaje;
                 }
+
+                if (axios.isAxiosError(error)) {
+                    if (error.response?.status === 401) {
+                        mensaje = "Sesión expirada. Por favor, vuelve a iniciar sesión.";
+                        sessionStorage.removeItem('token');
+                        sessionStorage.setItem('auth', 'false');
+                        window.location.href = '/login';
+                        return Promise.reject(error)
+                    } else if (error.response?.status === 404) {
+                        mensaje = "No se encontró el recurso. Revisa los IDs.";
+                    }
+                }
+
             }
 
             Swal.fire({

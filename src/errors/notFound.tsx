@@ -1,21 +1,45 @@
+import { motion } from "motion/react"
 import { Link } from "react-router-dom"
+
+const MotionLink = motion.create(Link)
 
 function NotFound() {
     return (
-        <section className="flex items-center h-full p-16 dark:bg-gray-50 dark:text-gray-800">
+        <motion.section className="flex items-center h-screen p-16"
+            style={{
+                backgroundImage: "linear-gradient(90deg, #E2E8F0 0%, #CBD5E1 25%, #FFFFFF 50%, #CBD5E1 75%, #E2E8F0 100%)",
+                backgroundSize: "200% auto",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center"
+            }}
+            animate={{
+                backgroundPosition: ["0% center", "-200% center"]
+            }}
+            transition={{
+                duration: 12,
+                ease: "linear",
+                repeat: Infinity
+            }}>
             <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8">
                 <div className="max-w-md text-center">
-                    <h2 className="mb-8 font-extrabold text-9xl dark:text-gray-400">
-                        <span className="sr-only">Error</span>404
+                    <h2 className="mb-8 2xl:text-[10rem] font-extrabold text-9xl dark:text-gray-400 animate-sube-baja">
+                        404
                     </h2>
-                    <p className="text-2xl font-semibold md:text-3xl">Pagina no encontrada</p>
-                    <p className="mt-4 mb-8 dark:text-gray-600">Para regresar al inicio presiona el boton de abajo.</p>
-                    <Link rel="noopener noreferrer" to="/" className="px-8 py-3 font-semibold cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md">
+                    <p className="text-2xl md:text-3xl 2xl:text-4xl font-semibold animate-pulso-lento">Pagina no encontrada</p>
+                    <p className="text-sm md:text-base 2xl:text-lg mt-2 sm:mt-4 mb-8 dark:text-gray-600">Para regresar presione el boton de abajo.</p>
+                    <MotionLink
+                        to="/"
+                        whileHover={{ y: -3 }}
+                        whileTap={{ scale: 0.95 }}
+                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                        className="text-base 2xl:text-xl px-4 2xl:px-6 2xl:py-3 py-2 inline-block transition-colors duration-500 ease-in-ou cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md truncate"
+                    >
                         Regresar a la pagina de inicio
-                    </Link>
+                    </MotionLink>
                 </div>
             </div>
-        </section>
+        </motion.section >
     )
 }
 

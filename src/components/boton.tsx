@@ -10,7 +10,7 @@ function Boton({ nombreBoton, color, disabled, onClick }: BotonProps) {
                 whileTap="whileTap"
                 animate="animate"
                 whileHover="whileHover"
-                className={`transition-colors duration-500 ease-in-ou w-full 2xl:h-12 py-2 px-4 rounded-md text-base 2xl:text-lg ${color} text-white`}
+                className={`transition-colors duration-500 ease-in-ou w-full 2xl:h-12 py-2 px-4 rounded-md text-base 2xl:text-lg ${color} text-white truncate`}
                 onClick={onClick}
                 disabled={disabled}
                 type="submit"

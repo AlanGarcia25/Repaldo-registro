@@ -16,7 +16,7 @@ export const OPCIONES_SEXO: SelectOption[] = [
 
 // ESTADO CIVIL
 export const OPCIONES_ESTADO_CIVIL: SelectOption[] = [
-  { value: "Soltero", label: "Soltero" },
-  { value: "Casado", label: "Casado" },
-  { value: "Divorciado", label: "Divorciado" },
+  { value: "soltero", label: "Soltero" },
+  { value: "casado", label: "Casado" },
+  { value: "divorciado", label: "Divorciado" },
 ];

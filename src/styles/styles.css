@@ -1,1 +1,47 @@
 @import "tailwindcss";
+
+@layer utilities {
+  .no-scrollbar {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+}
+
+@theme {
+  --animate-sube-baja: sube-baja 3s ease-in-out infinite;
+
+  @keyframes sube-baja {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-5px);
+      /* Ajusta la altura en px para más precisión */
+    }
+  }
+  }
+
+@theme {
+  --animate-pulso-lento: pulso-lento 3s cubic-bezier(0.5, 0, 0.6, 1) infinite;
+
+  @keyframes pulso-lento {
+
+    0%,
+    100% {
+      opacity: 1;
+      /* Totalmente visible */
+    }
+
+    50% {
+      opacity: 0.5;
+      /* Se vuelve medio transparente */
+    }
+  }
+}

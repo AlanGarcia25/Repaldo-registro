@@ -65,13 +65,11 @@ export const botonVariants: Variants = {
 
 // COMPONENTE DE INPUTS Y DOMICILIO
 export const inputsVariant: Variants = {
-    initial: {
-        borderBottomWidth: 2,
-    },
     focused: {
         borderColor: 'oklch(54.6% 0.245 262.881)',
     },
 }
+
 
 // COMPONENDE DE INPUTS Y DOMICILIO
 export const clicVariant: Variants = {

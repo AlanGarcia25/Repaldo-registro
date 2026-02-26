@@ -50,9 +50,10 @@ export interface InputProps {
 // USO PARA EL COMPONENTE "select"
 export interface SelectProps {
   nombreSelect: string;
-  value?: string | number;
-  onChange: (val: string) => void;
   options: { value: string | number; label: string }[];
+  value: string | number;
+  onChange: (value: string) => void;
+  empresasVacio?: boolean
 }
 
 // USO PARA EL INICIO DE SESION "card"
@@ -74,8 +75,8 @@ export interface Token {
 
 // USO EN MODAL.TSX
 export interface ModalHuellaProps {
-    abierto: boolean;
-    estado: "escaneando" | "ok" | "error";
-    mensaje?: string;
-    onClose: () => void;
+  abierto: boolean;
+  estado: "escaneando" | "ok" | "error";
+  mensaje?: string;
+  onClose: () => void;
 }

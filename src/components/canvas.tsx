@@ -1,15 +1,16 @@
 import Swal from 'sweetalert2'
-import { useRef, useState, useEffect } from "react";
+import { useRef, useState, useEffect, memo } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";
 
 import { useEmpleado } from "../context/EmpleadoContext";
 
-function Canvas() {
+const Canvas = memo(({ }) => {
   const { setUrlFirma, setLimpiarCanvas } = useEmpleado();
   const [estaVacio, setEstaVacio] = useState(true);
   const sigCanvas = useRef<SignatureCanvas>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const handleClear = () => {
     sigCanvas.current?.clear();
@@ -18,6 +19,12 @@ function Canvas() {
 
   useEffect(() => {
     setLimpiarCanvas(() => handleClear);
+
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
   }, []);
 
   const guardarFirma = () => {
@@ -37,14 +44,19 @@ function Canvas() {
       allowOutsideClick: false,
       timerProgressBar: true,
     })
+
+    timerRef.current = setTimeout(() => {
+      handleClear();
+      timerRef.current = null; 
+    }, 1000);
   };
 
   return (
     <div >
-      <div className={`${estaVacio ? "border-gray-500" : "border-blue-800"} border-2 2xl:border-3 bg-[#f9f9f9]`}>
+      <div className="border-gray-500 border-2 2xl:border-3 bg-[#f9f9f9]">
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full 2xl:h-42 2xl:w-full" }}
+          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full 2xl:h-42 2xl:w-full cursor-crosshair" }}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
           minWidth={3.3}
@@ -64,12 +76,7 @@ function Canvas() {
         />
         <Boton
           nombreBoton="Guardar firma"
-          onClick={() => {
-            guardarFirma()
-            setTimeout(() => {
-              handleClear();
-            }, 1000)
-          }}
+          onClick={guardarFirma}
           disabled={estaVacio ? true : false}
           color={estaVacio
             ? "bg-gray-500/40 cursor-not-allowed text-white/90"
@@ -77,7 +84,9 @@ function Canvas() {
         />
       </div>
     </div>
-  );
+  )
 }
+);
+
 
 export default Canvas;
