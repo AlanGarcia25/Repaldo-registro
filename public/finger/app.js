@@ -113,7 +113,7 @@ function showMessage(message){
 }
 
 window.onload = function () {
-    localStorage.clear();
+    sessionStorage.clear();
     test = new FingerprintSdkTest();
     readersDropDownPopulate(true); //To populate readers for drop down selection
     disableEnable(); // Disabling enabling buttons - if reader not selected
@@ -172,10 +172,10 @@ function onDeviceInfo(id, element){
 function onClear() {
          var vDiv = document.getElementById('imagediv');
          vDiv.innerHTML = "";
-         localStorage.setItem("imageSrc", "");
-         localStorage.setItem("wsq", "");
-         localStorage.setItem("raw", "");
-         localStorage.setItem("intermediate", "");
+         sessionStorage.setItem("imageSrc", "");
+         sessionStorage.setItem("wsq", "");
+         sessionStorage.setItem("raw", "");
+         sessionStorage.setItem("intermediate", "");
 
          disableEnableExport(true);
 }
@@ -199,7 +199,7 @@ function toggle_visibility(ids) {
 
 
 $("#save").on("click",function(){
-    if(localStorage.getItem("imageSrc") == "" || localStorage.getItem("imageSrc") == null || document.getElementById('imagediv').innerHTML == ""){
+    if(sessionStorage.getItem("imageSrc") == "" || sessionStorage.getItem("imageSrc") == null || document.getElementById('imagediv').innerHTML == ""){
         alert("Error -> Fingerprint not available");
     }else{
         var vDiv = document.getElementById('imageGallery');
@@ -207,10 +207,10 @@ $("#save").on("click",function(){
             var image = document.createElement("img");
             image.id = "galleryImage";
             image.className = "img-thumbnail";
-            image.src = localStorage.getItem("imageSrc");
+            image.src = sessionStorage.getItem("imageSrc");
             vDiv.appendChild(image);
 
-            localStorage.setItem("imageSrc"+vDiv.children.length,localStorage.getItem("imageSrc"));
+            sessionStorage.setItem("imageSrc"+vDiv.children.length,sessionStorage.getItem("imageSrc"));
         }else{
             document.getElementById('imageGallery').innerHTML = "";
             $("#save").click();
@@ -238,15 +238,15 @@ function sampleAcquired(s){
             if(currentFormat == Fingerprint.SampleFormat.PngImage){   
             // If sample acquired format is PNG- perform following call on object recieved 
             // Get samples from the object - get 0th element of samples as base 64 encoded PNG image         
-                localStorage.setItem("imageSrc", "");                
+                sessionStorage.setItem("imageSrc", "");                
                 var samples = JSON.parse(s.samples);            
-                localStorage.setItem("imageSrc", "data:image/png;base64," + Fingerprint.b64UrlTo64(samples[0]));
+                sessionStorage.setItem("imageSrc", "data:image/png;base64," + Fingerprint.b64UrlTo64(samples[0]));
                 if(state == document.getElementById("content-capture")){ 
                     var vDiv = document.getElementById('imagediv');
                     vDiv.innerHTML = "";
                     var image = document.createElement("img");
                     image.id = "image";
-                    image.src = localStorage.getItem("imageSrc");
+                    image.src = sessionStorage.getItem("imageSrc");
                     vDiv.appendChild(image); 
                 }
 
@@ -258,11 +258,11 @@ function sampleAcquired(s){
                 // Get samples from the object - get 0th element of samples and then get Data from it.
                 // Returned data is Base 64 encoded, which needs to get decoded to UTF8,
                 // after decoding get Data key from it, it returns Base64 encoded raw image data
-                localStorage.setItem("raw", "");
+                sessionStorage.setItem("raw", "");
                 var samples = JSON.parse(s.samples);
                 var sampleData = Fingerprint.b64UrlTo64(samples[0].Data);
                 var decodedData = JSON.parse(Fingerprint.b64UrlToUtf8(sampleData));
-                localStorage.setItem("raw", Fingerprint.b64UrlTo64(decodedData.Data));
+                sessionStorage.setItem("raw", Fingerprint.b64UrlTo64(decodedData.Data));
 
                 var vDiv = document.getElementById('imagediv').innerHTML = '<div id="animateText" style="display:none">RAW Sample Acquired <br>'+Date()+'</div>';
                 setTimeout('delayAnimate("animateText","table-cell")',100); 
@@ -275,11 +275,11 @@ function sampleAcquired(s){
                 // Get samples from the object - get 0th element of samples and then get Data from it.
                 // Returned data is Base 64 encoded, which needs to get decoded to UTF8,
                 // after decoding get Data key from it, it returns Base64 encoded wsq image
-                localStorage.setItem("wsq", "");
+                sessionStorage.setItem("wsq", "");
                 var samples = JSON.parse(s.samples);
                 var sampleData = Fingerprint.b64UrlTo64(samples[0].Data);
                 var decodedData = JSON.parse(Fingerprint.b64UrlToUtf8(sampleData));
-                localStorage.setItem("wsq","data:application/octet-stream;base64," + Fingerprint.b64UrlTo64(decodedData.Data));
+                sessionStorage.setItem("wsq","data:application/octet-stream;base64," + Fingerprint.b64UrlTo64(decodedData.Data));
 
                 var vDiv = document.getElementById('imagediv').innerHTML = '<div id="animateText" style="display:none">WSQ Sample Acquired <br>'+Date()+'</div>';
                 setTimeout('delayAnimate("animateText","table-cell")',100);   
@@ -291,10 +291,10 @@ function sampleAcquired(s){
                 // If sample acquired format is Intermediate- perform following call on object recieved 
                 // Get samples from the object - get 0th element of samples and then get Data from it.
                 // It returns Base64 encoded feature set
-                localStorage.setItem("intermediate", "");
+                sessionStorage.setItem("intermediate", "");
                 var samples = JSON.parse(s.samples);
                 var sampleData = Fingerprint.b64UrlTo64(samples[0].Data);
-                localStorage.setItem("intermediate", sampleData);
+                sessionStorage.setItem("intermediate", sampleData);
 
                 var vDiv = document.getElementById('imagediv').innerHTML = '<div id="animateText" style="display:none">Intermediate Sample Acquired <br>'+Date()+'</div>';
                 setTimeout('delayAnimate("animateText","table-cell")',100); 
@@ -437,37 +437,37 @@ function setActive(element1,element2){
 
 function onImageDownload(){
     if(currentFormat == Fingerprint.SampleFormat.PngImage){
-        if(localStorage.getItem("imageSrc") == "" || localStorage.getItem("imageSrc") == null || document.getElementById('imagediv').innerHTML == "" ){
+        if(sessionStorage.getItem("imageSrc") == "" || sessionStorage.getItem("imageSrc") == null || document.getElementById('imagediv').innerHTML == "" ){
            alert("No image to download");
         }else{
-            //alert(localStorage.getItem("imageSrc"));
-            downloadURI(localStorage.getItem("imageSrc"), "sampleImage.png", "image/png");
+            //alert(sessionStorage.getItem("imageSrc"));
+            downloadURI(sessionStorage.getItem("imageSrc"), "sampleImage.png", "image/png");
         }
     }
 
     else if(currentFormat == Fingerprint.SampleFormat.Compressed){
-         if(localStorage.getItem("wsq") == "" || localStorage.getItem("wsq") == null || document.getElementById('imagediv').innerHTML == "" ){
+         if(sessionStorage.getItem("wsq") == "" || sessionStorage.getItem("wsq") == null || document.getElementById('imagediv').innerHTML == "" ){
            alert("WSQ data not available.");
         }else{
-            downloadURI(localStorage.getItem("wsq"), "compressed.wsq","application/octet-stream");
+            downloadURI(sessionStorage.getItem("wsq"), "compressed.wsq","application/octet-stream");
         }
     }
 
     else if(currentFormat == Fingerprint.SampleFormat.Raw){
-         if(localStorage.getItem("raw") == "" || localStorage.getItem("raw") == null || document.getElementById('imagediv').innerHTML == "" ){
+         if(sessionStorage.getItem("raw") == "" || sessionStorage.getItem("raw") == null || document.getElementById('imagediv').innerHTML == "" ){
            alert("RAW data not available.");
         }else{
 
-            downloadURI("data:application/octet-stream;base64,"+localStorage.getItem("raw"), "rawImage.raw", "application/octet-stream");
+            downloadURI("data:application/octet-stream;base64,"+sessionStorage.getItem("raw"), "rawImage.raw", "application/octet-stream");
         }
     }
 
     else if(currentFormat == Fingerprint.SampleFormat.Intermediate){
-         if(localStorage.getItem("intermediate") == "" || localStorage.getItem("intermediate") == null || document.getElementById('imagediv').innerHTML == "" ){
+         if(sessionStorage.getItem("intermediate") == "" || sessionStorage.getItem("intermediate") == null || document.getElementById('imagediv').innerHTML == "" ){
            alert("Intermediate data not available.");
         }else{
 
-            downloadURI("data:application/octet-stream;base64,"+localStorage.getItem("intermediate"), "FeatureSet.bin", "application/octet-stream");
+            downloadURI("data:application/octet-stream;base64,"+sessionStorage.getItem("intermediate"), "FeatureSet.bin", "application/octet-stream");
         }
     }
 

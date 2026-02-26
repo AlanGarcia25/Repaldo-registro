@@ -1,7 +1,6 @@
 import { createContext, useContext, useState } from "react";
 import type { datosEmpleado } from "../models/api.models";
 
-// Define los valores iniciales fuera para reusarlos
 const valoresIniciales: datosEmpleado = {
   empleadoId: '',
   empleadoNombre: '',
@@ -17,6 +16,7 @@ const valoresIniciales: datosEmpleado = {
   lugarNacimiento: '',
   estadoCivil: '',
   tipoJornal: '',
+  fechaIngreso: ''
 };
 
 interface EmpleadoContextType {
@@ -26,7 +26,10 @@ interface EmpleadoContextType {
   setHuellaBase64: (v: string) => void;
   urlFirma: string;
   setUrlFirma: (v: string) => void;
-  limpiarEmpleado: () => void; 
+  limpiarEmpleado: () => void;
+  datosEmpresa: string;
+  setDatosEmpresa: (v: string) => void;
+  setLimpiarCanvas: React.Dispatch<React.SetStateAction<() => void>>;
 }
 
 const EmpleadoContext = createContext<EmpleadoContextType | null>(null);
@@ -35,11 +38,15 @@ export const EmpleadoProvider = ({ children }: { children: React.ReactNode }) =>
   const [datos, setDatos] = useState<datosEmpleado>(valoresIniciales);
   const [huellaBase64, setHuellaBase64] = useState("");
   const [urlFirma, setUrlFirma] = useState("");
+  const [datosEmpresa, setDatosEmpresa] = useState("");
+  const [limpiarCanvas, setLimpiarCanvas] = useState<() => void>(() => { });
 
   const limpiarEmpleado = () => {
     setDatos(valoresIniciales);
     setHuellaBase64("");
     setUrlFirma("");
+    setDatosEmpresa("")
+    limpiarCanvas()
   };
 
   return (
@@ -51,7 +58,10 @@ export const EmpleadoProvider = ({ children }: { children: React.ReactNode }) =>
         setHuellaBase64,
         urlFirma,
         setUrlFirma,
-        limpiarEmpleado, 
+        limpiarEmpleado,
+        datosEmpresa,
+        setDatosEmpresa,
+        setLimpiarCanvas
       }}
     >
       {children}

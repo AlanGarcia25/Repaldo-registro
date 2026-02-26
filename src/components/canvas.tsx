@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import swal from 'sweetalert'
+import Swal from 'sweetalert2'
+import { useRef, useState, useEffect } from "react";
 import SignatureCanvas from "react-signature-canvas";
 
 import Boton from "./boton";
@@ -7,47 +7,47 @@ import Boton from "./boton";
 import { useEmpleado } from "../context/EmpleadoContext";
 
 function Canvas() {
-  const sigCanvas = useRef<SignatureCanvas>(null);
+  const { setUrlFirma, setLimpiarCanvas } = useEmpleado();
   const [estaVacio, setEstaVacio] = useState(true);
-
-  const { setUrlFirma } = useEmpleado();
+  const sigCanvas = useRef<SignatureCanvas>(null);
 
   const handleClear = () => {
     sigCanvas.current?.clear();
     setEstaVacio(true);
   };
 
+  useEffect(() => {
+    setLimpiarCanvas(() => handleClear);
+  }, []);
+
   const guardarFirma = () => {
     if (!sigCanvas.current || sigCanvas.current.isEmpty()) {
       return;
     }
 
-    const urlFirma = sigCanvas.current
-      .getCanvas()
-      .toDataURL("image/png");
+    const urlFirma = sigCanvas.current.getCanvas().toDataURL("image/png");
 
     setUrlFirma(urlFirma);
-    swal({
-      title: "Envio exitoso",
+    Swal.fire({
+      title: "Guardado exitoso!",
       text: "La firma se ha guardado",
       icon: "success",
-      timer: 2000,
-      buttons:{
-        visble:false
-      }
+      timer: 1800,
+      showConfirmButton: false,
+      allowOutsideClick: false,
+      timerProgressBar: true,
     })
-    console.log("La url de la firma es: ", urlFirma) ///////////// BORRAR
   };
 
   return (
-    <div className="pt-2">
-      <div className="border border-gray-800 bg-[#f9f9f9]">
+    <div >
+      <div className={`${estaVacio ? "border-gray-500" : "border-blue-800"} border-2 2xl:border-3 bg-[#f9f9f9]`}>
         <SignatureCanvas
           ref={sigCanvas}
-          canvasProps={{ className: "sigCanvas w-full h-auto" }}
+          canvasProps={{ className: "sigCanvas w-full h-30 sm:w-full sm:h-35 md:w-full md:h-35 lg:w-full 2xl:h-42 2xl:w-full" }}
           onEnd={() => setEstaVacio(false)}
           backgroundColor="white"
-          minWidth={3.5}
+          minWidth={3.3}
           maxWidth={1}
         />
       </div>
@@ -56,14 +56,24 @@ function Canvas() {
         <Boton
           nombreBoton="Limpiar"
           onClick={handleClear}
-          color="bg-stone-600 hover:bg-stone-800"
+          disabled={estaVacio}
+          color={estaVacio
+            ? "bg-gray-500/50 cursor-not-allowed text-white/90"
+            : "bg-stone-600 hover:bg-stone-800"
+          }
         />
-
         <Boton
           nombreBoton="Guardar firma"
-          onClick={guardarFirma}
+          onClick={() => {
+            guardarFirma()
+            setTimeout(() => {
+              handleClear();
+            }, 1000)
+          }}
           disabled={estaVacio ? true : false}
-          color={estaVacio ? "bg-yellow-600/40 cursor-not-allowed" : "bg-yellow-600 hover:bg-yellow-700"}
+          color={estaVacio
+            ? "bg-gray-500/40 cursor-not-allowed text-white/90"
+            : "bg-blue-500 hover:bg-blue-600"}
         />
       </div>
     </div>

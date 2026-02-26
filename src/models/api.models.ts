@@ -4,7 +4,7 @@ export interface nombreEmpresas {
   empresaNombre: string;
 }
 
-// USO PARA "useTokenData"
+// USO PARA "empleados"
 export interface datosEmpleado {
   empleadoId: string;
   empleadoNombre: string;
@@ -13,63 +13,69 @@ export interface datosEmpleado {
   empleadoCURP: string;
   empleadoRFC: string;
   sexo: string;
-  fechaNacimiento: string;
+  fechaNacimiento: string | number;
   domicilio: string;
   colonia: string;
   codigoPostal: number;
   lugarNacimiento: string;
-  // NO SE USA DE MOMENTO
   estadoCivil: string;
   tipoJornal: string;
-  // NO SE USA DE MOMENTO
+  firmaBase64?: string;
+  huellaBase64?: string;
+  fechaIngreso: string;
 }
 
 // USO PARA EL COMPONENTE "boton"
 export interface BotonProps {
-  nombreBoton: string;
   color: string;
   disabled?: boolean;
+  nombreBoton: string;
   onClick?: () => void;
 }
 
 // USO PARA EL COMPONENTE "input"
 export interface InputProps {
-  nombre: string;
-  tipo: string;
-  placeholder: string;
-  value?: string | number;
-  readOnly?: boolean;
-  estilos?: string;
-  min?: string;
-  max?: string;
-  onChange: (value: string) => void;
-  onBlur?: (value: string) => void;
   ref?: null;
+  tipo: string;
+  estilos?: string;
+  readOnly?: boolean;
+  placeholder?: string;
+  value?: string | number;
+  nombre: React.ReactNode;
+  onBlur?: (value: string) => void;
+  onChange: (value: string) => void;
   onKeyDown?: (e: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 // USO PARA EL COMPONENTE "select"
 export interface SelectProps {
   nombreSelect: string;
-  options: { value: string | number; label: string }[];
   value?: string | number;
-  readOnly?: boolean;
   onChange: (val: string) => void;
+  options: { value: string | number; label: string }[];
 }
 
 // USO PARA EL INICIO DE SESION "card"
 export interface Usuario {
-  empresaId?: number;
-  empresaNombre?: string;
-  userId?: string;
   Email: string;
-  userName?: string;
+  userId?: string;
   Password: string;
   activo?: boolean;
+  userName?: string;
+  empresaId?: number;
+  empresaNombre?: string;
 }
 
 // USO PARA LA OBTENCION Y DURACION DEL TOKEN
 export interface Token {
   token: string;
   fechaExpiracion: Date;
+}
+
+// USO EN MODAL.TSX
+export interface ModalHuellaProps {
+    abierto: boolean;
+    estado: "escaneando" | "ok" | "error";
+    mensaje?: string;
+    onClose: () => void;
 }
