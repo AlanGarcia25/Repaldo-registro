@@ -1,15 +1,16 @@
-import { useEmpleado } from "../context/EmpleadoContext";
-import { api } from "../services/api.config";
-import { botonVariants } from "../styles/motionVariantes";
+import { useState } from "react"
 import { motion } from "motion/react";
+import { api } from "../services/api.config";
+import { useEmpleado } from "../context/EmpleadoContext";
+import { botonVariants } from "../styles/motionVariantes";
 
-
-import Swal from 'sweetalert2';
 import axios from "axios";
+import Swal from 'sweetalert2';
 import Tooltip from "@mui/material/Tooltip";
 
 function EnviarEmpleado() {
     const { datos, huellaBase64, urlFirma, limpiarEmpleado, datosEmpresa } = useEmpleado();
+    const [cargando, setCargando] = useState(false);
 
     const camposRequeridos = [
         datos.empleadoId,
@@ -32,13 +33,17 @@ function EnviarEmpleado() {
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
     const deshabilitado = hayCamposVacios || !huellaBase64 || !urlFirma;
     const handleEnviar = async () => {
-        if (deshabilitado) return;
+        if (deshabilitado) {
+            return;
+        }
+        setCargando(true)
 
         try {
             const payload = { ...datos, huellaBase64, urlFirma };
             const ruta = `agrosmart/ags_contrato/`;
 
             const response = await api.post(ruta, payload, {
+                timeout: 10000,
                 responseType: 'blob',
                 headers: { 'Accept': 'application/pdf' }
             });
@@ -86,9 +91,7 @@ function EnviarEmpleado() {
                         mensaje = "No se encontró el recurso. Revisa los IDs.";
                     }
                 }
-
             }
-
             Swal.fire({
                 title: "Error",
                 text: mensaje,
@@ -96,6 +99,8 @@ function EnviarEmpleado() {
                 timer: 3000,
                 showConfirmButton: false,
             });
+        } finally {
+            setCargando(false);
         }
     };
 
@@ -109,14 +114,15 @@ function EnviarEmpleado() {
                     whileHover="whileHover"
                     type="button"
                     onClick={handleEnviar}
-                    disabled={deshabilitado}
+                    disabled={deshabilitado || cargando}
                     className={
-                        `duration-50 ease-in-out w-full py-2 px-4 rounded-md text-white transition 2xl:text-lg 2xl:h-12 
+                        `duration-50 ease-in-out w-full py-2 px-4 rounded-md text-white transition 2xl:text-xl 2xl:h-12 
                     ${deshabilitado
                             ? "bg-gray-600/50 text-white/90 "
-                            : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`
-                    }>
-                    {deshabilitado ? "Campos incompletos" : "Descargar Contrato"}
+                            : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`}>
+                    {deshabilitado
+                        ? ("Campos incompletos")
+                        : ("Descargar Contrato")}
                 </motion.button>
             </Tooltip>
         </div >

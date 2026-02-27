@@ -48,7 +48,7 @@ export const itemsDerechaVariants = {
     hidden: { y: -80, opacity: 0 },
     visible: { y: 0, opacity: 1 }
 }
-////
+/////////
 
 
 // COMPONENTE DE BOTONES
@@ -93,4 +93,3 @@ export const modalVariant: Variants = {
         },
     },
 };
-

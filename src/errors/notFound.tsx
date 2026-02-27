@@ -1,5 +1,5 @@
-import { motion } from "motion/react"
 import { Link } from "react-router-dom"
+import { motion } from "motion/react"
 
 const MotionLink = motion.create(Link)
 
@@ -33,8 +33,7 @@ function NotFound() {
                         whileHover={{ y: -3 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                        className="text-base 2xl:text-xl px-4 2xl:px-6 2xl:py-3 py-2 inline-block transition-colors duration-500 ease-in-ou cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md truncate"
-                    >
+                        className="text-base 2xl:text-xl px-4 2xl:px-6 2xl:py-3 py-2 inline-block transition-colors duration-500 ease-in-ou cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md truncate">
                         Regresar a la pagina de inicio
                     </MotionLink>
                 </div>

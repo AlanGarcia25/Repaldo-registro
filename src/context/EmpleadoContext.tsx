@@ -35,18 +35,18 @@ interface EmpleadoContextType {
 const EmpleadoContext = createContext<EmpleadoContextType | null>(null);
 
 export const EmpleadoProvider = ({ children }: { children: React.ReactNode }) => {
+  const [limpiarCanvas, setLimpiarCanvas] = useState<() => void>(() => { });
   const [datos, setDatos] = useState<datosEmpleado>(valoresIniciales);
   const [huellaBase64, setHuellaBase64] = useState("");
-  const [urlFirma, setUrlFirma] = useState("");
   const [datosEmpresa, setDatosEmpresa] = useState("");
-  const [limpiarCanvas, setLimpiarCanvas] = useState<() => void>(() => { });
+  const [urlFirma, setUrlFirma] = useState("");
 
   const limpiarEmpleado = () => {
     setDatos(valoresIniciales);
     setHuellaBase64("");
+    setDatosEmpresa("");
     setUrlFirma("");
-    setDatosEmpresa("")
-    limpiarCanvas()
+    limpiarCanvas();
   };
 
   return (
@@ -62,13 +62,11 @@ export const EmpleadoProvider = ({ children }: { children: React.ReactNode }) =>
         datosEmpresa,
         setDatosEmpresa,
         setLimpiarCanvas
-      }}
-    >
+      }}>
       {children}
     </EmpleadoContext.Provider>
   );
 };
-
 
 export const useEmpleado = () => {
   const ctx = useContext(EmpleadoContext);

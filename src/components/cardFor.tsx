@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef, useTransition } from "react";
+import dayjs from "dayjs";
 import Swal from 'sweetalert2'
 import { motion } from "motion/react";
+import React, { useState, useEffect, useRef, useTransition } from "react";
 
 import 'dayjs/locale/es';
-import dayjs from "dayjs";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,31 +32,29 @@ let instanciaSDKGlobal: any = null;
 function CardFor() {
     const { urlFirma, huellaBase64, datos, setDatos, setHuellaBase64, datosEmpresa, setDatosEmpresa, limpiarEmpleado } = useEmpleado();
 
-    const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
-    const [mensajeHuella, setMensajeHuella] = useState<string>()
     const [imagenHuella, setImagenHuella] = useState('');
+    const [mensajeHuella, setMensajeHuella] = useState<string>()
+    const [estadoHuella, setEstadoHuella] = useState<"escaneando" | "ok" | "error">("escaneando");
 
-    const [modalAbierto, setModalAbierto] = useState(false);
     const [cargando, setCargando] = useState(false)
+    const [modalAbierto, setModalAbierto] = useState(false);
+
+    const sdkRef = useRef<any>(null);
+    const escaneandoRef = useRef(false);
+    const timeoutRef = useRef<number | null>(null);
 
     const [isPending, startTransition] = useTransition();
-
-    const timeoutRef = useRef<number | null>(null);
-    const escaneandoRef = useRef(false);
-    const sdkRef = useRef<any>(null);
-
     const [, setListaEmpleadosOriginal] = useState<datosEmpleado[]>([]);
 
     const hoy = new Date();
     const anioLimite = hoy.getFullYear() - 18;
-    const maxFecha18Anios = dayjs().year(anioLimite).endOf('year');
     const minFecha = dayjs().subtract(100, 'year');
+    const maxFecha18Anios = dayjs().year(anioLimite).endOf('year');
 
     ////// MAJENO DE CIERRE DE SESION
     const manejarCierreDeSesion = () => {
         limpiarEmpleado();
-        sessionStorage.removeItem('token');
-        sessionStorage.setItem('auth', 'false');
+        sessionStorage.clear();
         setImagenHuella("");
 
         Swal.fire({
@@ -64,9 +62,12 @@ function CardFor() {
             text: "No se ha registrado actividad o la sesión ha vencido.",
             icon: "warning",
             confirmButtonText: "Volver al Login",
-            allowOutsideClick: false
-        }).then(() => {
-            window.location.href = '/login';
+            allowOutsideClick: false,
+            buttonsStyling: true,
+        }).then((result) => {
+            if (result.isConfirmed) {
+                window.location.href = '/login';
+            }
         });
     };
     useInactividad(manejarCierreDeSesion, 600000);
@@ -85,7 +86,7 @@ function CardFor() {
         const cargarEmpleados = async () => {
             try {
                 const res = await api.get<datosEmpleado[]>(
-                    "/agrosmart/ags_empleado/contrato"//--------------
+                    "/agrosmart/ags_empleado/contrato"// --------------
                 );
                 setListaEmpleadosOriginal(res.data);
             } catch (error) {
@@ -134,7 +135,7 @@ function CardFor() {
         setMensajeHuella(msg);
         detenerEscaneo();
     };
-    /////////////////////////// 
+    ///////////////////////////
 
     ///////////////////////////////////////// INICIO HANDLE-OPTIONS \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
@@ -172,7 +173,6 @@ function CardFor() {
                     setTimeout(() => reject(new Error("SERVICIO_BLOQUEADO")), 3500)
                 )
             ]) as any[];
-
             if (!devices || devices.length === 0) {
                 throw new Error("Conecte el lector");
             }
@@ -195,7 +195,6 @@ function CardFor() {
                     manejarErrorHuella("Error al procesar huella");
                 }
             };
-
             sdkRef.current.onCommunicationFailed = () => {
                 if (!yaSeMostroBloqueo) {
                     detenerEscaneo();
@@ -212,16 +211,15 @@ function CardFor() {
             if (error.message === "SERVICIO_BLOQUEADO") {
                 yaSeMostroBloqueo = true;
                 setModalAbierto(false);
-
                 Swal.fire({
                     title: 'Lector Saturado',
                     text: 'El servicio ha superado el límite de conexiones permitido.',
                     icon: 'warning',
                     confirmButtonText: 'Reiniciar Lector',
                     customClass: {
-                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg',
-                        title: 'text-2xl font-bold text-gray-800',
-                        popup: 'rounded-xl border-2 border-yellow-400'
+                        confirmButton: 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg 2xl:text-xl 2xl:py-6 2xl:px-10',
+                        title: 'text-2xl font-bold text-gray-800 2xl:text-5xl',
+                        popup: 'rounded-xl border-2 border-yellow-400 2xl:border-4'
                     },
                     buttonsStyling: false,
                     allowOutsideClick: false
@@ -288,7 +286,6 @@ function CardFor() {
         try {
             const empleado = await getDatosEmpleado(`${datos.empleadoId}/${datosEmpresa}`, { signal: controller.signal });
             clearTimeout(timeoutId);
-
             if (!empleado || Object.keys(empleado).length === 0) {
                 Swal.fire({
                     title: "No encontrado",
@@ -301,14 +298,12 @@ function CardFor() {
                 setCargando(true)
                 return;
             }
-
             startTransition(() => {
                 setDatos(empleado);
             });
 
         } catch (error: any) {
             const isTimeout = error.name === 'AbortError' || error.code === 'ECONNABORTED';
-
             Swal.fire({
                 title: isTimeout ? "Sin respuesta" : "Error de conexión",
                 text: isTimeout
@@ -346,8 +341,8 @@ function CardFor() {
                     <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-8">Datos del empleado</h1>
 
                     {/*   PRIMERA PARTE DEL MENU IZQUIERDO   */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-2 md:gap-y-5">
-                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 items-end">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-2 md:gap-y-3 lg:gap-y-4">
+                        <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-2 md:gap-y-3 items-end">
                             <Select
                                 nombreSelect={"Empresas"}
                                 options={empresasOptions}
@@ -363,9 +358,7 @@ function CardFor() {
                             />
                             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                                 <div className="flex flex-col py-2">
-                                    <motion.label
-                                        animate={{ color: datos.fechaIngreso ? "#193cb8" : "#374151" }}
-                                        className="text-sm 2xl:text-lg font-bold transition-colors">
+                                    <motion.label animate={{ color: datos.fechaIngreso ? "#193cb8" : "#374151" }} className="text-sm 2xl:text-lg font-bold transition-colors">
                                         Fecha de ingreso
                                     </motion.label>
                                     <DatePicker
@@ -379,19 +372,45 @@ function CardFor() {
                                         slotProps={{
                                             textField: {
                                                 variant: "standard",
-                                                readOnly: true,
-                                                placeholder: "DD/MM/AAAA",
                                                 InputProps: {
                                                     disableUnderline: true,
-                                                    className: `${datos.fechaIngreso ? "!italic border-b-2 2xl:border-b-3 border-blue-800" : "!italic border-b-2 2xl:border-b-3 border-gray-500"}
-                                                        !pl-3 2xl:!p-1.5 !2xl:text-2xl !font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full`,
+                                                    className: `${datos.fechaIngreso ? "!italic border-b-2 2xl:border-b-3 border-blue-800" : "!italic border-b-2 2xl:border-b-3 border-gray-500"} 
+                                                            !pl-3 !text-base 2xl:!text-lg !font-sans bg-transparent outline-none w-full`,
                                                 },
+                                                sx: {
+                                                    '& .MuiInputBase-input': {
+                                                        padding: 0,
+                                                        cursor: 'pointer',
+                                                    }
+                                                }
+                                            },
+                                            desktopPaper: {
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        transform: 'scale(1.2) !important',
+                                                        transformOrigin: 'top left',
+                                                        marginTop: '15px',
+                                                        '& .MuiPickersLayout-root': {
+                                                            width: '100%',
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            mobilePaper: {
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        transform: 'scale(1.7) !important',
+                                                    }
+                                                }
                                             },
                                             openPickerButton: {
-                                                className: datos.fechaIngreso ? "!text-blue-800 transition duration-300 delay-10 hover:scale-110 active:scale-95" : "!text-gray-500 duration-500",
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        '& .MuiSvgIcon-root': { fontSize: '2rem' }
+                                                    }
+                                                }
                                             }
                                         }}
-
                                     />
                                 </div>
                             </LocalizationProvider>
@@ -430,15 +449,43 @@ function CardFor() {
                                         slotProps={{
                                             textField: {
                                                 variant: "standard",
-                                                readOnly: true,
                                                 InputProps: {
                                                     disableUnderline: true,
                                                     className: `${datos.fechaNacimiento ? "!italic border-b-2 2xl:border-b-3 border-blue-800" : "!italic border-b-2 2xl:border-b-3 border-gray-500"} 
-                                                        !pl-3 2xl:!p-1 font-sans bg-transparent transition duration-300 delay-10 focus-within:border-blue-600 outline-none w-full`,
+                                                            !pl-3 !text-base 2xl:!text-lg !font-sans bg-transparent outline-none w-full`,
                                                 },
+                                                sx: {
+                                                    '& .MuiInputBase-input': {
+                                                        padding: 0,
+                                                        cursor: 'pointer',
+                                                    }
+                                                }
+                                            },
+                                            desktopPaper: {
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        transform: 'scale(1.2) !important',
+                                                        transformOrigin: 'top left',
+                                                        marginTop: '15px',
+                                                        '& .MuiPickersLayout-root': {
+                                                            width: '100%',
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            mobilePaper: {
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        transform: 'scale(1.7) !important',
+                                                    }
+                                                }
                                             },
                                             openPickerButton: {
-                                                className: datos.fechaNacimiento ? "!text-blue-800 transition duration-300 delay-10 hover:scale-110 active:scale-95" : "!text-gray-500 duration-500",
+                                                sx: {
+                                                    '@media (min-width: 1536px)': {
+                                                        '& .MuiSvgIcon-root': { fontSize: '2rem' }
+                                                    }
+                                                }
                                             }
                                         }}
                                     />
@@ -480,7 +527,7 @@ function CardFor() {
                     </div>
 
                     {/*   SEGUNA PARTE DEL MENU DERECHO  */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-2 md:gap-y-5 md:mt-5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-2 gap-x-6 gap-y-3 md:gap-y-3 lg:gap-y-5 md:mt-3">
                         <Input
                             nombre="RFC"
                             placeholder="RFC"
@@ -524,7 +571,7 @@ function CardFor() {
                             }}
                             readOnly={false}
                         />
-                        <motion.div variants={clicVariant} whileTap="whileTap" className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col py-2 2xl:py-1 w-full ">
+                        <motion.div variants={clicVariant} whileTap="whileTap" className="col-span-1 sm:col-span-2 2xl:col-span-1 flex flex-col py-2 md:py-1 2xl:py-1 w-full ">
                             <motion.label animate={{ color: datos.domicilio ? "#193cb8" : "#374151" }}
                                 className="text-sm 2xl:text-lg font-bold transition-colors">
                                 Domicilio
@@ -533,14 +580,12 @@ function CardFor() {
                                 variants={inputsVariant}
                                 initial="initial"
                                 whileFocus="focused"
-                                animate={{
-                                    borderColor: datos.domicilio ? "#193cb8" : "oklch(55.1% 0.027 264.364)"
-                                }}
+                                animate={{ borderColor: datos.domicilio ? "#193cb8" : "oklch(55.1% 0.027 264.364)" }}
                                 rows={1}
                                 placeholder="Ingrese su domicilio completo"
                                 value={datos.domicilio || ""}
                                 onChange={(e) => handleInputChange('domicilio', e.target.value)}
-                                className="resize-y w-full bg-transparent pl-2.5 p-1.5 pb-2 sm:pb-5 sm:pl-2.5 sm:p-1.5 2xl:pb-1.5 focus:outline-none font-sans placeholder:italic xl:placeholder:text-base 2xl:placeholder:text-lg border-b-2 2xl:border-b-3 border-gray-500"
+                                className="resize-y w-full bg-transparent pl-2.5 p-1.5 pb-2 sm:pb-5 sm:pl-2.5 sm:p-1.5 2xl:pb-3.25 focus:outline-none font-sans placeholder:italic xl:placeholder:text-base 2xl:placeholder:text-xl 2xl:text-xl border-b-2 2xl:border-b-3 border-gray-500"
                             />
                         </motion.div>
                         <div className="col-span-1 sm:col-span-2 2xl:col-span-1">
@@ -560,15 +605,11 @@ function CardFor() {
                 <motion.div layout variants={itemsDerechaVariants}
                     className="w-full md:w-1/2 p-5 box-border shadow-xl border-2 border-gray-500 rounded-r-lg 2xl:border-3 flex flex-col gap-6">
                     <h1 className="text-xl 2xl:text-2xl font-semibold flex items-center justify-center pt-2 pb-4 ">Biométricos</h1>
-                    <motion.div layout className="flex flex-col gap-6 ">
+                    <motion.div layout className="flex flex-col gap-6">
                         <div className="w-full">
                             <Boton
                                 nombreBoton="Capturar huella"
-                                color={`cursor-pointer w-full
-                                ${huellaBase64
-                                        ? "bg-green-600 hover:bg-green-700"
-                                        : "bg-blue-500 hover:bg-blue-600"
-                                    }`}
+                                color={`cursor-pointer w-full ${huellaBase64 ? "bg-green-600 hover:bg-green-700" : "bg-blue-500 hover:bg-blue-600"}`}
                                 onClick={handleCapturarHuella}
                             />
                         </div>
@@ -593,11 +634,7 @@ function CardFor() {
 
                         <div className="w-full flex flex-col gap-2">
                             <motion.label animate={{ color: urlFirma ? "#193cb8" : "#374151" }}
-                                className="text-base 2xl:text-lg font-bold transition-colors ">
-                                Firma
-                                {urlFirma &&
-                                    ' ✓'
-                                }
+                                className="text-base 2xl:text-lg font-bold transition-colors ">Firma{urlFirma && ' ✓'}
                             </motion.label>
                             <div className="w-full overflow-hidden">
                                 <Canvas />

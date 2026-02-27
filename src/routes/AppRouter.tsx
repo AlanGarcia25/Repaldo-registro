@@ -1,7 +1,7 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
 import App from '../App';
 import Formulario from '../Formulario';
 import NotFound from '../errors/notFound';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { EmpleadoProvider } from '../context/EmpleadoContext';
 
 interface Props {

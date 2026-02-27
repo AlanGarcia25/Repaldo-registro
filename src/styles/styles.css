@@ -13,14 +13,11 @@
 
 @theme {
   --animate-sube-baja: sube-baja 3s ease-in-out infinite;
-
   @keyframes sube-baja {
-
     0%,
     100% {
       transform: translateY(0);
     }
-
     50% {
       transform: translateY(-5px);
       /* Ajusta la altura en px para más precisión */
@@ -30,18 +27,43 @@
 
 @theme {
   --animate-pulso-lento: pulso-lento 3s cubic-bezier(0.5, 0, 0.6, 1) infinite;
-
   @keyframes pulso-lento {
-
     0%,
     100% {
       opacity: 1;
       /* Totalmente visible */
     }
-
     50% {
       opacity: 0.5;
       /* Se vuelve medio transparente */
     }
+  }
+}
+
+
+/* ESTILOS PARA EL SWEETALERT QUE SEA RESPONSIVO CUANDO ES 2XL */
+@media (min-width: 1536px) {
+  .swal2-popup {
+    font-size: 1.4rem !important; 
+    width: 700px !important;     
+    padding: 2rem !important;     
+    border-radius: 15px !important;
+  }
+
+  .swal2-title {
+    font-size: 2.5rem !important;  
+  }
+
+  .swal2-html-container {
+    font-size: 1.5rem !important;
+  }
+
+  .swal2-actions {
+    margin-top: 3rem !important; 
+  }
+
+  .swal2-confirm, .swal2-cancel {
+    padding: 15px 40px !important;
+    font-size: 1.3rem !important;
   }
 }

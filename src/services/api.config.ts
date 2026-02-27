@@ -1,5 +1,5 @@
-import type { nombreEmpresas, datosEmpleado } from "../models/api.models";
 import axios, { type AxiosInstance } from "axios";
+import type { nombreEmpresas, datosEmpleado } from "../models/api.models";
 
 export const BASE_URL = import.meta.env.VITE_URL_DATOS;
 

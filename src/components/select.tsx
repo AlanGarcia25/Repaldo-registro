@@ -1,8 +1,7 @@
-import type { SelectProps } from "../models/api.models";
 import { motion } from "motion/react";
+import type { SelectProps } from "../models/api.models";
 
 const Select = ({ nombreSelect, options, value, onChange, empresasVacio = false }: SelectProps) => {
-
     return (
         <motion.div layout whileTap={{ scale: 0.98 }} className="flex flex-col py-2 w-full group">
             <motion.label
@@ -14,11 +13,10 @@ const Select = ({ nombreSelect, options, value, onChange, empresasVacio = false 
                 className="text-sm 2xl:text-lg font-bold transition-colors">
                 {nombreSelect}
             </motion.label>
-
             <div className="relative flex items-center">
                 <select
                     className={`${empresasVacio ? 'appearance-none cursor-not-allowed' : 'cursor-pointer'} 
-                        italic 2xl:text-lg border-b-2 2xl:border-b-3 w-full min-w-0 p-1.5 pr-8 truncate font-sans bg-transparent transition-all duration-300 focus:border-blue-500 outline-none focus:outline-none focus:ring-0
+                        italic text-base 2xl:text-xl border-b-2 2xl:border-b-3 w-full min-w-0 p-1.5 2xl:p-2 pr-8 truncate font-sans bg-transparent transition-all duration-300 focus:border-blue-500 outline-none focus:outline-none focus:ring-0
                         ${empresasVacio
                             ? 'border-red-500 text-red-600'
                             : value

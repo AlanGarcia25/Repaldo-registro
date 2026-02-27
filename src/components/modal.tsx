@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
-import { motion } from "motion/react";
 import Swal from "sweetalert2";
+import { motion } from "motion/react";
+import React, { useEffect } from "react";
 import { modalVariant } from "../styles/motionVariantes";
 
 import type {ModalHuellaProps} from '../models/api.models'
@@ -37,7 +37,6 @@ const Modal: React.FC<ModalHuellaProps> = ({ abierto, estado, mensaje, onClose }
                 onClose();
             });
         }
-
         if (estado === "error") {
             Swal.fire({
                 title: "Error",
