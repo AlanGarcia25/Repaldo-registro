@@ -119,7 +119,10 @@ function EnviarEmpleado() {
                         `duration-50 ease-in-out w-full py-2 px-4 rounded-md text-white transition 2xl:text-xl 2xl:h-12 
                     ${deshabilitado
                             ? "bg-gray-600/50 text-white/90 "
-                            : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"}`}>
+                            : cargando
+                                ? "bg-green-500/60 cursor-wait"
+                                : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"
+                        }`}>
                     {deshabilitado
                         ? ("Campos incompletos")
                         : ("Descargar Contrato")}

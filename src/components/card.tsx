@@ -9,6 +9,7 @@ import { animacionInicio } from "../styles/motionVariantes";
 import axios from "axios"
 import Input from "./input"
 import Boton from "./boton"
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 const Card = () => {
     const navigate = useNavigate();
@@ -17,6 +18,8 @@ const Card = () => {
     const [enviado, setEnviado] = useState(false);
     const [cargando, setCargando] = useState(false);
     const [correoElec, setCorreoElec] = useState(false);
+
+    const esMovil = useMediaQuery('(max-width: 1000px)');
 
     const enviarDatos = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -54,7 +57,7 @@ const Card = () => {
                 timer: 2000,
                 showConfirmButton: false,
                 timerProgressBar: true,
-                toast: true,
+                toast: esMovil ? false : true,
                 position: "top-end",
                 color: '#000',
             })

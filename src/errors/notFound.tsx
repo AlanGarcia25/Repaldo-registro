@@ -27,13 +27,13 @@ function NotFound() {
                         404
                     </h2>
                     <p className="text-2xl md:text-3xl 2xl:text-4xl font-semibold animate-pulso-lento">Pagina no encontrada</p>
-                    <p className="text-sm md:text-base 2xl:text-lg mt-2 sm:mt-4 mb-8 dark:text-gray-600">Para regresar presione el boton de abajo.</p>
+                    <p className="text-sm md:text-base 2xl:text-[1.188rem] mt-2 sm:mt-4 mb-8 dark:text-gray-600 truncate">Para regresar presione el boton de abajo.</p>
                     <MotionLink
                         to="/"
                         whileHover={{ y: -3 }}
                         whileTap={{ scale: 0.95 }}
                         transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                        className="text-base 2xl:text-xl px-4 2xl:px-6 2xl:py-3 py-2 inline-block transition-colors duration-500 ease-in-ou cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md truncate">
+                        className="text-base  2xl:text-xl px-4 py-2 2xl:px-6 2xl:py-3 transition-colors duration-500 ease-in-ou cursor-pointer bg-blue-500 text-white hover:bg-blue-600 rounded-md truncate">
                         Regresar a la pagina de inicio
                     </MotionLink>
                 </div>

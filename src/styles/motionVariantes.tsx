@@ -53,8 +53,13 @@ export const itemsDerechaVariants = {
 
 // COMPONENTE DE BOTONES
 export const botonVariants: Variants = {
-    whileTap: { scale: 0.90 },
+    rest: {
+        scale: 1,
+        y: 0
+    },
+    whileTap: { scale: [0.90] },
     animate: {
+        scale: 1,
         transition: {
             scale: { type: "spring", stiffness: 400, damping: 17 }
         },
