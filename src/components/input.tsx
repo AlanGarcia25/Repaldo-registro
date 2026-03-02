@@ -29,7 +29,7 @@ const Input = memo(({ nombre, tipo, placeholder, value, onChange, onBlur, readOn
         className={`${readOnly
           ? "cursor-not-allowed text-gray-600"
           : "bg-transparent"} 
-             xl:placeholder:text-base 2xl:placeholder:text-xl text-base 2xl:text-xl truncate w-full min-w-0 border-b-2 2xl:border-b-3 p-1.5 2xl:p-2 pl-2.5 focus:outline-none font-sans placeholder:italic`} />
+             xl:placeholder:text-base 2xl:placeholder:text-xl text-base 2xl:text-xl text-ellipsis w-full min-w-0 border-b-2 2xl:border-b-3 p-1.5 2xl:p-2 pl-2.5 focus:outline-none font-sans placeholder:italic`} />
     </motion.div>
   );
 }

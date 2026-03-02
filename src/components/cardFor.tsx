@@ -51,6 +51,8 @@ function CardFor() {
     const minFecha = dayjs().subtract(100, 'year');
     const maxFecha18Anios = dayjs().year(anioLimite).endOf('year');
 
+    const [estaCargando, setEstaCargando] = useState(false);
+
     ////// MAJENO DE CIERRE DE SESION
     const manejarCierreDeSesion = () => {
         limpiarEmpleado();
@@ -332,6 +334,24 @@ function CardFor() {
 
     return (
         <div className="relative h-screen no-scrollbar overflow-y-auto">
+            {estaCargando && (
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-999 flex flex-col items-center justify-center bg-gray-900/70 backdrop-blur-sm">
+                    <div className="relative flex items-center justify-center w-24 h-24">
+                        <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                            className="absolute inset-0 rounded-full"
+                            style={{
+                                background: 'conic-gradient(#fb2c36,#e7000b,#ff6900 )',
+                                WebkitMaskImage: 'radial-gradient(transparent 60%, black 61%)',
+                                maskImage: 'radial-gradient(transparent 60%, black 61%)',
+                            }} />
+                        <div className="absolute w-16 h-16 bg-blue-500/10 rounded-full blur-2xl"></div>
+                    </div>
+                    <p className="text-white text-lg font-mediu mt-4 select-none">Generando documento...</p>
+                </motion.div>
+            )}
             <motion.div variants={contenedorVariants} initial="hidden" animate="visible"
                 className="flex flex-wrap md:flex-nowrap gap-6 p-4 w-full select-none">
 
@@ -641,7 +661,7 @@ function CardFor() {
                             </div>
                         </div>
                         <div className="mt-2 w-full">
-                            <EnviarEmpleado />
+                            <EnviarEmpleado onEstadoCarga={setEstaCargando} />
                         </div>
                     </motion.div>
                 </motion.div>

@@ -16,7 +16,7 @@ const Select = ({ nombreSelect, options, value, onChange, empresasVacio = false 
             <div className="relative flex items-center">
                 <select
                     className={`${empresasVacio ? 'appearance-none cursor-not-allowed' : 'cursor-pointer'} 
-                        italic text-base 2xl:text-xl border-b-2 2xl:border-b-3 w-full min-w-0 p-1.5 2xl:p-2 pr-8 truncate font-sans bg-transparent transition-all duration-300 focus:border-blue-500 outline-none focus:outline-none focus:ring-0
+                        italic text-base 2xl:text-xl border-b-2 2xl:border-b-3 w-full min-w-0 p-1.5 2xl:p-2 pr-5 text-ellipsis font-sans bg-transparent transition-all duration-300 focus:border-blue-500 outline-none focus:outline-none focus:ring-0
                         ${empresasVacio
                             ? 'border-red-500 text-red-600'
                             : value

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react" // 1. Añadimos useEffect
 import { motion } from "motion/react";
 import { api } from "../services/api.config";
 import { useEmpleado } from "../context/EmpleadoContext";
@@ -8,9 +8,15 @@ import axios from "axios";
 import Swal from 'sweetalert2';
 import Tooltip from "@mui/material/Tooltip";
 
-function EnviarEmpleado() {
+function EnviarEmpleado({ onEstadoCarga }: { onEstadoCarga: (cargando: boolean) => void }) {
     const { datos, huellaBase64, urlFirma, limpiarEmpleado, datosEmpresa } = useEmpleado();
-    const [cargando, setCargando] = useState(false);
+    const [cargandoDatos, setCargandoDatos] = useState(false);
+
+    useEffect(() => {
+        if (onEstadoCarga) {
+            onEstadoCarga(cargandoDatos);
+        }
+    }, [cargandoDatos, onEstadoCarga]);
 
     const camposRequeridos = [
         datos.empleadoId,
@@ -32,11 +38,12 @@ function EnviarEmpleado() {
 
     const hayCamposVacios = camposRequeridos.some((campo) => !campo || campo.toString().trim() === "");
     const deshabilitado = hayCamposVacios || !huellaBase64 || !urlFirma;
+
     const handleEnviar = async () => {
         if (deshabilitado) {
             return;
         }
-        setCargando(true)
+        setCargandoDatos(true)
 
         try {
             const payload = { ...datos, huellaBase64, urlFirma };
@@ -100,7 +107,7 @@ function EnviarEmpleado() {
                 showConfirmButton: false,
             });
         } finally {
-            setCargando(false);
+            setCargandoDatos(false);
         }
     };
 
@@ -114,12 +121,12 @@ function EnviarEmpleado() {
                     whileHover="whileHover"
                     type="button"
                     onClick={handleEnviar}
-                    disabled={deshabilitado || cargando}
+                    disabled={deshabilitado || cargandoDatos}
                     className={
                         `duration-50 ease-in-out w-full py-2 px-4 rounded-md text-white transition 2xl:text-xl 2xl:h-12 
                     ${deshabilitado
                             ? "bg-gray-600/50 text-white/90 "
-                            : cargando
+                            : cargandoDatos
                                 ? "bg-green-500/60 cursor-wait"
                                 : "bg-green-600 hover:bg-green-700 cursor-pointer shadow-md"
                         }`}>
