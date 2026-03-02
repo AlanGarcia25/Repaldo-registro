@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react" // 1. Añadimos useEffect
+import { useState, useEffect } from "react"
 import { motion } from "motion/react";
 import { api } from "../services/api.config";
 import { useEmpleado } from "../context/EmpleadoContext";
